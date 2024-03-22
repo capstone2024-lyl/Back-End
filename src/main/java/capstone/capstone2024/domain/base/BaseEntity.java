@@ -1,9 +1,7 @@
-package capstone.capstone2024.base;
+package capstone.capstone2024.domain.base;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.*;
 import lombok.Getter;
-import jakarta.persistence.MappedSuperclass;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,10 +13,16 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public class BaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, unique = true)
+    private Long id;
+
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "createdAt", updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
 }
+
