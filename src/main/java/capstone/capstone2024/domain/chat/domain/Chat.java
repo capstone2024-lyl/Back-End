@@ -12,14 +12,26 @@ import lombok.*;
 public class Chat extends BaseEntity {
 
     @Column(name = "neur")
-    private String neur;
+    private Integer neur;
 
 
     @Column(name = "extr")
-    private String extr;
+    private Integer extr;
 
-    @ManyToOne
+
+    @Column(name = "open")
+    private Integer open;
+
+
+    @Column(name = "agree")
+    private Integer agree;
+
+
+    @Column(name = "cons")
+    private Integer cons;
+
+
     @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
-
 }

@@ -17,11 +17,22 @@ public class User extends BaseEntity {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "avg_neur")
-    private String avg_neur;
+    @Column(name = "name")
+    private String name;
 
+    @Column(name = "avg_neur")
+    private Integer avg_neur;
 
     @Column(name = "avg_extr")
-    private String avg_extr;
+    private Integer avg_extr;
+
+    @Column(name = "avg_open")
+    private Integer avg_open;
+
+    @Column(name = "avg_agree")
+    private Integer avg_agree;
+
+    @Column(name = "avg_cons")
+    private Integer avg_cons;
 
 }
