@@ -4,6 +4,8 @@ import capstone.capstone2024.domain.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Builder
 @Getter
@@ -24,6 +26,9 @@ public class User extends BaseEntity {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "birthday")
+    private LocalDate birthday;
 
     @Column(name = "role")
     private UserRole role;

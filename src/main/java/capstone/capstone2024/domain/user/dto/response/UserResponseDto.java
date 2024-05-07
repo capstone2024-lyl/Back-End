@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 
 @Builder
 @Data
@@ -14,5 +16,6 @@ public class UserResponseDto {
     private String loginId;
 
     private String name;
+    private LocalDate birthday;
 
 }

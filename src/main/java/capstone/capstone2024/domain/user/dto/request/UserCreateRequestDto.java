@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +27,9 @@ public class UserCreateRequestDto {
     @NotBlank(message = "닉네임이 비어있습니다.")
     private String name;
 
+    @NotBlank(message = "생년월일이 비어있습니다.")
+    private LocalDate birthday;
+
 
 
     public User toEntity() {
@@ -33,6 +38,7 @@ public class UserCreateRequestDto {
                 .password(this.password)
                 .name(this.name)
                 .role(UserRole.USER)
+                .birthday(this.birthday)
                 .build();
     }
     public User toEntity(String encodedPassword) {
@@ -41,6 +47,7 @@ public class UserCreateRequestDto {
                 .password(encodedPassword)
                 .name(this.name)
                 .role(UserRole.USER)
+                .birthday(this.birthday)
                 .build();
     }
 }
