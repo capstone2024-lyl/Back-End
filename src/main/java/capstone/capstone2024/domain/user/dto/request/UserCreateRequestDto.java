@@ -1,22 +1,46 @@
 package capstone.capstone2024.domain.user.dto.request;
 
 import capstone.capstone2024.domain.user.domain.User;
+import jakarta.validation.constraints.NotBlank;
+import capstone.capstone2024.domain.user.domain.UserRole;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserCreateRequestDto {
-    private String email;
+
+    @NotBlank(message = "id가 비어있습니다.")
+    private String loginId;
+
+    @NotBlank(message = "비밀번호가 비어있습니다.")
+    private String password;
+
+    @NotBlank(message = "비밀번호를 재입력하세요")
+    private String passwordCheck;
+
+    @NotBlank(message = "닉네임이 비어있습니다.")
     private String name;
 
-    @Builder
-    public UserCreateRequestDto(String email, String name){
-        this.email = email;
-        this.name = name;
-    }
 
-    public User toEntity(){
+
+    public User toEntity() {
         return User.builder()
-                .email(email)
-                .name(name)
+                .loginId(this.loginId)
+                .password(this.password)
+                .name(this.name)
+                .role(UserRole.USER)
+                .build();
+    }
+    public User toEntity(String encodedPassword) {
+        return User.builder()
+                .loginId(this.loginId)
+                .password(encodedPassword)
+                .name(this.name)
+                .role(UserRole.USER)
                 .build();
     }
 }

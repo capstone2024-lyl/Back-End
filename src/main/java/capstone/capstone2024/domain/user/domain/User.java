@@ -11,8 +11,13 @@ import lombok.*;
 @AllArgsConstructor
 public class User extends BaseEntity {
 
-    @Column(name = "email", unique = true, length = 30)
-    private String email;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, unique = true)
+    private Long id;
+
+    @Column(name = "loginId", unique = true, length = 30)
+    private String loginId;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -20,19 +25,8 @@ public class User extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "avg_neur")
-    private Integer avg_neur;
+    @Column(name = "role")
+    private UserRole role;
 
-    @Column(name = "avg_extr")
-    private Integer avg_extr;
-
-    @Column(name = "avg_open")
-    private Integer avg_open;
-
-    @Column(name = "avg_agree")
-    private Integer avg_agree;
-
-    @Column(name = "avg_cons")
-    private Integer avg_cons;
 
 }
