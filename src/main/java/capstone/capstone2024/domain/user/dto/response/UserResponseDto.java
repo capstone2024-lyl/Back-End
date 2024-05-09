@@ -16,6 +16,7 @@ public class UserResponseDto {
     private String loginId;
 
     private String name;
+
     private LocalDate birthday;
 
 }
