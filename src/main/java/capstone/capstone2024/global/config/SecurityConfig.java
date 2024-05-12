@@ -36,7 +36,7 @@ public class SecurityConfig {
 
         httpSecurity
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/signUp", "/swagger-ui/**","/v3/**", "/api/v1/user/**").permitAll()
+                        .requestMatchers("/", "/login/**","/sign-up", "/swagger-ui/**","/v3/**", "/api/v1/user/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtTokenFilter(userService, secretkey), UsernamePasswordAuthenticationFilter.class);
 
