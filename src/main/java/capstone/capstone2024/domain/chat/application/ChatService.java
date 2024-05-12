@@ -29,11 +29,9 @@ public class ChatService {
         if (file.isEmpty()) {
             throw new BadRequestException(ErrorCode.NO_FILE_UPLOADED, "NO file uploaded");
         }
-        System.out.println("loginId = " + loginId);
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        System.out.println("user.getName() = " + user.getName());
 
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
