@@ -37,10 +37,13 @@ public class UserController {
         return  ResponseEntity.ok(userService.login(userLogInRequestDto));
     }
 
-//    @GetMapping("/me")
-//    public ResponseEntity<UserResponseDto> findUser(@RequestParam String loginId){
-//        if(userService.checkLoginIdDuplicate(loginId)) return ResponseEntity.ok("can't use");
-//        return ResponseEntity.ok("can use");
-//    }
+    @GetMapping("/{loginId}")
+    public ResponseEntity<UserResponseDto> findUser(@PathVariable String loginId){
+        return ResponseEntity.ok(userService.findUser(loginId));
+    }
+
+
+
+
 }
 
