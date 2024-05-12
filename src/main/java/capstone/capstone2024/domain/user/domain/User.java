@@ -30,7 +30,7 @@ public class User extends BaseEntity {
     private LocalDate birthday;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @Column(name = "chatId")
+    @JoinColumn(name = "chatId")
     private Chat chat;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
