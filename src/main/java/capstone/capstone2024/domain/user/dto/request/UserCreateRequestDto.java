@@ -3,10 +3,7 @@ package capstone.capstone2024.domain.user.dto.request;
 import capstone.capstone2024.domain.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import capstone.capstone2024.domain.user.domain.UserRole;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -27,7 +24,6 @@ public class UserCreateRequestDto {
     @NotBlank(message = "닉네임이 비어있습니다.")
     private String name;
 
-    @NotBlank(message = "생년월일이 비어있습니다.")
     private LocalDate birthday;
 
 
