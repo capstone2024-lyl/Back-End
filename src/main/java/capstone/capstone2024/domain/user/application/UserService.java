@@ -1,5 +1,7 @@
 package capstone.capstone2024.domain.user.application;
 
+//import capstone.capstone2024.domain.app.domain.AppRepository;
+//import capstone.capstone2024.domain.category.domain.CategoryRepository;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserRepository;
 import capstone.capstone2024.domain.user.dto.request.UserCreateRequestDto;
@@ -22,7 +24,9 @@ import static capstone.capstone2024.global.error.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+//    private final AppRepository appRepository;
     private final UserRepository userRepository;
+//    private final CategoryRepository categoryRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Value("${spring.jwt.secret}")
@@ -69,6 +73,7 @@ public class UserService {
     public User getLoginUserById(Long id) {
         if(id == null) return null;
 
+
         Optional<User> optionalUser = userRepository.findById(id);
         if(optionalUser.isEmpty()) return null;
 
@@ -77,11 +82,32 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getLoginUserByLoginId(String loginId) {
-        if(loginId == null) return null;
+        if(loginId == null){
+            new BadRequestException(NEED_SIGN_IN, "로그인 후 사용가능합니다.");
+        }
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        Optional<User> optionalUser = userRepository.findByLoginId(loginId);
-        if(optionalUser.isEmpty()) return null;
 
-        return optionalUser.get();
+        return user;
     }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto findUser(String loginId){
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        return UserResponseDto.builder()
+                .name(user.getName())
+                .birthday(user.getBirthday())
+//                .mbti(user.getMbti())
+//                .app(appRepository.findTop3ByUserIdOrderByUsageTimeDesc(user.getId()))
+//                .category(categoryRepository.findTop3ByUserIdOrderByPlayCountDesc(user.getId()))
+                .nickname(user.getNickname())
+                .build();
+    }
+
+
+
+
 }
