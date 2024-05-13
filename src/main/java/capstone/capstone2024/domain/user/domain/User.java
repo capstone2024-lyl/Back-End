@@ -33,13 +33,11 @@ public class User extends BaseEntity {
     @JoinColumn(name = "chatId")
     private Chat chat;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "appId")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<App> appList;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "categoryId")
-    private List<Category> categoryList;
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+//    private List<Category> categoryList;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Column(name = "nickname")
