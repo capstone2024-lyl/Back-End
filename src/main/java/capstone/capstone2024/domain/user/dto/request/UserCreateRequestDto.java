@@ -7,9 +7,8 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
+@Builder
 public class UserCreateRequestDto {
 
     @NotBlank(message = "id가 비어있습니다.")
