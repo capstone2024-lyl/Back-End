@@ -2,6 +2,8 @@ package capstone.capstone2024.domain.app.application;
 
 import capstone.capstone2024.domain.app.domain.App;
 import capstone.capstone2024.domain.app.domain.AppRepository;
+import capstone.capstone2024.domain.app.dto.request.AppUsageCreateRequestDto;
+import capstone.capstone2024.domain.app.dto.request.AppUsageRequestDto;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserRepository;
@@ -41,6 +43,19 @@ public class AppService {
                         .usageTime(app.getUsageTime())
                         .build())
                 .collect(Collectors.toList());
+
+    }
+
+    @Transactional
+    public String createAppUsage(String loginId, AppUsageRequestDto appUsageRequestDto){
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        //Todo : appUsageRequestdto 파싱
+        AppUsageCreateRequestDto appUsageCreateRequestDto = AppUsageCreateRequestDto.builder().build();
+        App app = appUsageCreateRequestDto.toEntity();
+        appRepository.save(app);
+        return "ok";
 
     }
 
