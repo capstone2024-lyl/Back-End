@@ -47,14 +47,17 @@ public class AppService {
     }
 
     @Transactional
-    public String createAppUsage(String loginId, AppUsageRequestDto appUsageRequestDto){
+    public String createAppUsage(String loginId, List<AppUsageCreateRequestDto> appUsageCreateRequestDto){
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        //Todo : appUsageRequestdto 파싱
-        AppUsageCreateRequestDto appUsageCreateRequestDto = AppUsageCreateRequestDto.builder().build();
-        App app = appUsageCreateRequestDto.toEntity();
-        appRepository.save(app);
+
+        List<App> apps = appUsageCreateRequestDto.stream()
+                .map(dto -> dto.toEntity(user))
+                .collect(Collectors.toList());
+
+        // 변환된 App 엔티티 리스트를 저장
+        appRepository.saveAll(apps);
         return "ok";
 
     }

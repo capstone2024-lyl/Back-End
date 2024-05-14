@@ -21,11 +21,12 @@ public class AppController {
 
     }
 
-    @PostMapping("/{loginId}/appUsage")
+    @PostMapping("/appUsage")
     public ResponseEntity<String> createAppUsage(
-            @PathVariable String loginId,
-            @Valid @RequestBody AppUsageRequestDto appUsageRequestDto
+            @Valid @RequestBody List<AppUsageCreateRequestDto> appUsageCreateRequestDto
     ){
-        return ResponseEntity.ok(appService.createAppUsage(loginId, appUsageRequestDto));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loginId = authentication.getName();
+        return ResponseEntity.ok(appService.createAppUsage(loginId, appUsageCreateRequestDto));
     }
 }
