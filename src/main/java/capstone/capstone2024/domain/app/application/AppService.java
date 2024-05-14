@@ -3,7 +3,6 @@ package capstone.capstone2024.domain.app.application;
 import capstone.capstone2024.domain.app.domain.App;
 import capstone.capstone2024.domain.app.domain.AppRepository;
 import capstone.capstone2024.domain.app.dto.request.AppUsageCreateRequestDto;
-import capstone.capstone2024.domain.app.dto.request.AppUsageRequestDto;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserRepository;
@@ -29,17 +28,17 @@ public class AppService {
 
 
     @Transactional(readOnly = true)
-    public List<AppResponseDto> findTop3App(String loginId){
+    public List<AppResponseDto> findTop10App(String loginId){
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        Pageable topThree = PageRequest.of(0, 3);
-        Page<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user, topThree);
+        Pageable topTen = PageRequest.of(0, 10);
+        Page<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId(), topTen);
 
         return apps.getContent()
                 .stream()
                 .map(app -> AppResponseDto.builder()
-                        .appName(app.getAppName())
+                        .appPackageName(app.getAppPackageName())
                         .usageTime(app.getUsageTime())
                         .build())
                 .collect(Collectors.toList());

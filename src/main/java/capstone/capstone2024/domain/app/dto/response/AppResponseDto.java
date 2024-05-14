@@ -8,9 +8,7 @@ import lombok.Data;
 @Builder
 @Data
 public class AppResponseDto {
-    private String appName;
     private String appPackageName;
     private Integer usageTime;
-    private String appUrl;
 
 }
