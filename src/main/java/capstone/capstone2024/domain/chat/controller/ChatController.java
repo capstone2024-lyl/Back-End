@@ -7,6 +7,8 @@ import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,17 +23,17 @@ public class ChatController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> fileUpload(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("loginId") String loginId,
             @RequestParam("path") String path
     ) {
-        String result = chatService.filterChat(file, loginId, path);
-        return ResponseEntity.ok(result);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loginId = authentication.getName();
+        return ResponseEntity.ok(chatService.filterChat(file, loginId, path));
     }
 
-    @GetMapping("/{loginId}")
-    public ResponseEntity<ChatResponseDto> findMBTI(
-            @PathVariable String loginId
-    ){
+    @GetMapping("/findMBTI")
+    public ResponseEntity<ChatResponseDto> findMBTI(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loginId = authentication.getName();
         return ResponseEntity.ok(chatService.findMBTI(loginId));
     }
 
