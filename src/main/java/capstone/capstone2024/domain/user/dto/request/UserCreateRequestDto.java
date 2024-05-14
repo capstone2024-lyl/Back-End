@@ -8,7 +8,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class UserCreateRequestDto {
 
     @NotBlank(message = "id가 비어있습니다.")
@@ -25,17 +25,6 @@ public class UserCreateRequestDto {
 
     private LocalDate birthday;
 
-
-
-    public User toEntity() {
-        return User.builder()
-                .loginId(this.loginId)
-                .password(this.password)
-                .name(this.name)
-                .role(UserRole.USER)
-                .birthday(this.birthday)
-                .build();
-    }
     public User toEntity(String encodedPassword) {
         return User.builder()
                 .loginId(this.loginId)
