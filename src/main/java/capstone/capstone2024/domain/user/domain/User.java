@@ -2,7 +2,6 @@ package capstone.capstone2024.domain.user.domain;
 
 import capstone.capstone2024.domain.app.domain.App;
 import capstone.capstone2024.domain.base.BaseEntity;
-import capstone.capstone2024.domain.category.domain.Category;
 import capstone.capstone2024.domain.chat.domain.Chat;
 import jakarta.persistence.*;
 import lombok.*;
