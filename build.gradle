@@ -44,6 +44,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'com.google.http-client:google-http-client-jackson2:1.39.2'
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
+
+	implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+	implementation 'org.json:json:20210307'
+
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'io.projectreactor:reactor-core'
+
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
+
+
 }
 
 tasks.named('bootBuildImage') {
