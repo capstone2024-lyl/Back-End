@@ -22,12 +22,11 @@ public class ChatController {
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> fileUpload(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("path") String path
+            @RequestParam("file") MultipartFile file
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loginId = authentication.getName();
-        return ResponseEntity.ok(chatService.filterChat(file, loginId, path));
+        return ResponseEntity.ok(chatService.filterChat(file, loginId));
     }
 
     @GetMapping("/findMBTI")
