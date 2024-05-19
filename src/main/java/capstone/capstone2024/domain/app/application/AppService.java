@@ -1,6 +1,7 @@
 package capstone.capstone2024.domain.app.application;
 
 import capstone.capstone2024.domain.app.domain.App;
+import capstone.capstone2024.domain.app.domain.AppCategory;
 import capstone.capstone2024.domain.app.domain.AppRepository;
 import capstone.capstone2024.domain.app.dto.request.AppUsageCreateRequestDto;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
@@ -51,8 +52,12 @@ public class AppService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
 
+
         List<App> apps = appUsageCreateRequestDto.stream()
-                .map(dto -> dto.toEntity(user))
+                .map(dto -> {
+                    AppCategory appCategory = AppCategory.fromPackageName(dto.getAppPackageName());
+                    return dto.toEntity(user, appCategory);
+                })
                 .collect(Collectors.toList());
 
         // 변환된 App 엔티티 리스트를 저장
@@ -60,5 +65,6 @@ public class AppService {
         return "ok";
 
     }
+
 
 }
