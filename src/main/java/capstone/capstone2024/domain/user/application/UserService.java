@@ -5,10 +5,12 @@ package capstone.capstone2024.domain.user.application;
 import capstone.capstone2024.domain.app.application.AppService;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
 import capstone.capstone2024.domain.user.domain.User;
+import capstone.capstone2024.domain.user.domain.UserNickname;
 import capstone.capstone2024.domain.user.domain.UserRepository;
 import capstone.capstone2024.domain.user.dto.request.UserCreateRequestDto;
 import capstone.capstone2024.domain.user.dto.request.UserLogInRequestDto;
 import capstone.capstone2024.domain.user.dto.response.UserLoginResponseDto;
+import capstone.capstone2024.domain.user.dto.response.UserNicknameResponseDto;
 import capstone.capstone2024.domain.user.dto.response.UserResponseDto;
 import capstone.capstone2024.global.auth.JwtTokenUtil;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
@@ -106,6 +108,23 @@ public class UserService {
                 .apps(apps)
 //                .mbti(user.getMbti())
 
+                .build();
+    }
+
+
+    @Transactional
+    public UserNicknameResponseDto addNickname(String loginId, UserNickname nickname) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        if (!user.getNickname().contains(nickname)) {
+            user.getNickname().add(nickname);
+            userRepository.save(user);
+        }
+
+        return UserNicknameResponseDto.builder()
+                .loginId(user.getLoginId())
+                .nicknames(user.getNickname())
                 .build();
     }
 
