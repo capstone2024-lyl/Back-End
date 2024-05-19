@@ -21,6 +21,10 @@ public class App extends BaseEntity {
     @Column(name = "usageTime", nullable = false)
     private Integer usageTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "appCategory")
+    private AppCategory appCategory;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
