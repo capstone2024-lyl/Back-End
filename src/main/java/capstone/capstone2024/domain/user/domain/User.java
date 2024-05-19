@@ -39,8 +39,8 @@ public class User extends BaseEntity {
 //    private List<Category> categoryList;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @Column(name = "nickname")
-    private List<String> nickname;
+    @Enumerated(EnumType.STRING)
+    private List<UserNickname> nickname;
 
     @Column(name = "role")
     private UserRole role;
