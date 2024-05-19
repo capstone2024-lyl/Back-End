@@ -1,12 +1,9 @@
 package capstone.capstone2024.domain.user.dto.response;
 
-import capstone.capstone2024.domain.app.domain.App;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
-import capstone.capstone2024.domain.category.domain.Category;
+import capstone.capstone2024.domain.youtube.domain.Youtube;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,7 +22,7 @@ public class UserResponseDto {
 
     private List<AppResponseDto> apps;
 
-    private List<Category> category;
+    private List<Youtube> category;
 
     private List<String> photo;
 
