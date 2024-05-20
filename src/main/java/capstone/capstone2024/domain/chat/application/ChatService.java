@@ -29,11 +29,11 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final OpenAIService openAIService;
 
-    private static final String path = "/Users/pstar817/Desktop/3학년/캡스톤/";
+//    private static final String path = "/Users/pstar817/Desktop/3학년/캡스톤/";
 
 
     @Transactional
-    public String filterChat(MultipartFile file, String loginId) {
+    public String filterChat(MultipartFile file, String loginId, String path) {
         if (file.isEmpty()) {
             throw new BadRequestException(ErrorCode.NO_FILE_UPLOADED, "NO file uploaded");
         }
@@ -43,7 +43,7 @@ public class ChatService {
 
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            String outputFileName = user.getName() + "_2_" + file.getOriginalFilename();
+            String outputFileName = user.getName() + "_" + file.getOriginalFilename();
             Path outputPath = Paths.get(path + outputFileName);
 
             List<String> userMessages = new ArrayList<>();
