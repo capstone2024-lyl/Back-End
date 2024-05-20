@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface AppRepository extends JpaRepository<App, Long> {
-    Page<App> findByUserIdOrderByUsageTimeDesc(Long userId, Pageable pageable);
+    List<App> findByUserIdOrderByUsageTimeDesc(Long userId);
 
     Optional<App> findById(Long appId);
 

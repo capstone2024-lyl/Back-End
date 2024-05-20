@@ -33,8 +33,7 @@ public class AppService {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        Pageable topTen = PageRequest.of(0, 10);
-        Page<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId(), topTen);
+        List<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId());
 
         return apps.getContent()
                 .stream()
