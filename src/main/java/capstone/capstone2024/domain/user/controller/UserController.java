@@ -1,7 +1,6 @@
 package capstone.capstone2024.domain.user.controller;
 
 import capstone.capstone2024.domain.user.application.UserService;
-import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserNickname;
 import capstone.capstone2024.domain.user.dto.request.UserCreateRequestDto;
 import capstone.capstone2024.domain.user.dto.request.UserLogInRequestDto;
