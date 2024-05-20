@@ -1,6 +1,7 @@
 package capstone.capstone2024.domain.user.dto.response;
 
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
+import capstone.capstone2024.domain.user.domain.UserNickname;
 import capstone.capstone2024.domain.youtube.domain.Youtube;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,8 @@ public class UserResponseDto {
     private List<AppResponseDto> apps;
 
     private List<Youtube> category;
+
+    private List<UserNickname> nicknames;
 
     private List<String> photo;
 

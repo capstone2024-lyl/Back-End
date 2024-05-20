@@ -27,7 +27,13 @@ public enum UserNickname {
     INTERNET_SURFER("인터넷 서퍼"),
     PHOTOGRAPHER("사진작가"),
     F1_DRIVER("F1 운전기사"),
-    DOPAMINE_DETOXER("도파민 디톡서");
+    DOPAMINE_DETOXER("도파민 디톡서"),
+    HEALTY_USER("건강한 사용량"),
+    MUSIC_LOVER("나는 (듣기)가수다"),
+    NEWS_HUNTER("시사왕"),
+    VIDEO_ADDICT("글보단 영상이지"),
+    STUDY_MASTER("공부가 좋아");
+
 
     private final String description;
 

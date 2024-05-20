@@ -3,6 +3,8 @@ package capstone.capstone2024.domain.user.application;
 //import capstone.capstone2024.domain.app.domain.AppRepository;
 //import capstone.capstone2024.domain.category.domain.CategoryRepository;
 import capstone.capstone2024.domain.app.application.AppService;
+import capstone.capstone2024.domain.app.domain.App;
+import capstone.capstone2024.domain.app.domain.AppRepository;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserNickname;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static capstone.capstone2024.global.error.ErrorCode.*;
 
@@ -30,7 +33,7 @@ import static capstone.capstone2024.global.error.ErrorCode.*;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
-    private final AppService appService;
+    private final AppRepository appRepository;
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
@@ -100,12 +103,19 @@ public class UserService {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        List<AppResponseDto> apps = appService.findTop10App(user.getLoginId());
+
+        List<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId());
 
         return UserResponseDto.builder()
                 .name(user.getName())
                 .birthday(user.getBirthday())
-                .apps(apps)
+                .apps(apps.stream()
+                        .map(app -> AppResponseDto.builder()
+                                .appPackageName(app.getAppPackageName())
+                                .usageTime(app.getUsageTime())
+                                .build())
+                        .collect(Collectors.toList()))
+                .nicknames(user.getNickname())
 //                .mbti(user.getMbti())
 
                 .build();

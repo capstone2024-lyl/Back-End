@@ -5,7 +5,9 @@ import capstone.capstone2024.domain.app.domain.AppCategory;
 import capstone.capstone2024.domain.app.domain.AppRepository;
 import capstone.capstone2024.domain.app.dto.request.AppUsageCreateRequestDto;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
+import capstone.capstone2024.domain.user.application.UserService;
 import capstone.capstone2024.domain.user.domain.User;
+import capstone.capstone2024.domain.user.domain.UserNickname;
 import capstone.capstone2024.domain.user.domain.UserRepository;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +27,7 @@ import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
 public class AppService {
     private final AppRepository appRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
 
     @Transactional(readOnly = true)
@@ -39,7 +43,6 @@ public class AppService {
                         .usageTime(app.getUsageTime())
                         .build())
                 .collect(Collectors.toList());
-
     }
 
     @Transactional
@@ -69,7 +72,70 @@ public class AppService {
 
         // 변환된 App 엔티티 리스트를 저장
         appRepository.saveAll(appsToSave);
+
+        analyzeAppUsageAndAssignNickname(user);
+
+
+
         return "ok";
+    }
+
+    private void analyzeAppUsageAndAssignNickname(User user) {
+        Map<AppCategory, Integer> usageByCategory = new HashMap<>();
+        int totalUsageTime = 0;
+
+        // 사용자의 앱 사용시간 집계
+        List<App> userApps = appRepository.findByUserId(user.getId());
+        for (App app : userApps) {
+            int usageTime = app.getUsageTime();
+            usageByCategory.merge(app.getAppCategory(), usageTime, Integer::sum);
+            totalUsageTime += usageTime;
+        }
+
+        // 평균 사용시간과 비교하여 닉네임 부여
+        for (AppCategory category : AppCategory.values()) {
+            double averageUsage = category.getAverageUsage();
+            if (usageByCategory.getOrDefault(category, 0) > averageUsage) {
+                UserNickname nickname = determineNicknameByCategory(category);
+                if(nickname != null){
+                    userService.addNickname(user.getLoginId(), nickname);
+                }
+            }
+        }
+
+        //전체 사용시간으로 칭호 부여
+        int totalAverageUsage = 2310;
+        int totalMinimumUsage = 420;
+        if(totalUsageTime > totalAverageUsage) {
+            userService.addNickname(user.getLoginId(), UserNickname.ADDICT);
+        } else if (totalUsageTime > totalMinimumUsage) {
+            userService.addNickname(user.getLoginId(), UserNickname.HEALTY_USER);
+        } else{
+            userService.addNickname(user.getLoginId(), UserNickname.DOPAMINE_DETOXER);
+        }
+    }
+
+    private UserNickname determineNicknameByCategory(AppCategory category) {
+        switch (category) {
+            case CHAT:
+                return UserNickname.HEAVY_TALKER;
+            case SNS:
+                return UserNickname.SNS_ADDICT;
+            case GAME:
+                return UserNickname.GAME_HOLIC;
+            case MUSIC:
+                return UserNickname.MUSIC_LOVER;
+            case NEWS:
+                return UserNickname.NEWS_HUNTER;
+            case VIDEO:
+                return UserNickname.VIDEO_ADDICT;
+            case WEBTOON:
+                return UserNickname.WEBTOON_ADDICT;
+            case E_BOOK:
+                return UserNickname.STUDY_MASTER;
+            default:
+                return null;
+        }
     }
 
 
