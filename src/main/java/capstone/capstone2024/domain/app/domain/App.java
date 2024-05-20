@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class App extends BaseEntity {
 
-    @Column(name = "appPackageName")
+    @Column(name = "appPackageName", nullable = false)
     private String appPackageName;
 
     @Column(name = "usageTime", nullable = false)
@@ -28,5 +28,11 @@ public class App extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
+
+    public void updateUsageTime(Integer newUsageTime) {
+        if (newUsageTime != null && newUsageTime >= 0) {
+            this.usageTime = newUsageTime;
+        }
+    }
 
 }
