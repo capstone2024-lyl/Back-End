@@ -35,8 +35,7 @@ public class AppService {
 
         List<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId());
 
-        return apps.getContent()
-                .stream()
+        return apps.stream()
                 .map(app -> AppResponseDto.builder()
                         .appPackageName(app.getAppPackageName())
                         .usageTime(app.getUsageTime())
