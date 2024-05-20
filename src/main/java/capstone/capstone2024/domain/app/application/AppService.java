@@ -9,14 +9,12 @@ import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserRepository;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
@@ -50,18 +48,28 @@ public class AppService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
 
+        List<App> existingApps = appRepository.findByUserId(user.getId());
+        Map<String, App> existingAppMap = existingApps.stream()
+                .collect(Collectors.toMap(App::getAppPackageName, app -> app));
 
-        List<App> apps = appUsageCreateRequestDto.stream()
+        List<App> appsToSave = appUsageCreateRequestDto.stream()
                 .map(dto -> {
-                    AppCategory appCategory = AppCategory.fromPackageName(dto.getAppPackageName());
-                    return dto.toEntity(user, appCategory);
+                    String packageName = dto.getAppPackageName();
+
+                    if (existingAppMap.containsKey(packageName)) {
+                        App exisitingApp = existingAppMap.get(packageName);
+                        exisitingApp.updateUsageTime(dto.getUsageTime());
+                        return exisitingApp;
+                    } else {
+                        AppCategory appCategory = AppCategory.fromPackageName(packageName);
+                        return dto.toEntity(user, appCategory);
+                    }
                 })
                 .collect(Collectors.toList());
 
         // 변환된 App 엔티티 리스트를 저장
-        appRepository.saveAll(apps);
+        appRepository.saveAll(appsToSave);
         return "ok";
-
     }
 
 
