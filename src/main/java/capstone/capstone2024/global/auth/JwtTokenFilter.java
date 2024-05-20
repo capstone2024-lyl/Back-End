@@ -3,28 +3,22 @@ package capstone.capstone2024.global.auth;
 import capstone.capstone2024.domain.user.application.UserService;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
 import java.util.List;
 
 import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
@@ -33,9 +27,7 @@ import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final String secretKey;
-
-    @Value("${google.client-id}")
-    private String clientId;
+    private final String googleTokenInfoUrl;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -50,7 +42,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (googleToken != null) {
             try {
-                processOAuth2Token(googleToken, request, response, filterChain);
+                processGoogleAccessToken(googleToken);
             } catch (GeneralSecurityException e) {
                 throw new ServletException("Google Token verification failed", e);
             }
@@ -80,16 +72,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
     }
 
-    private void processOAuth2Token(String googleToken, HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException, GeneralSecurityException {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JacksonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList(clientId))
-                .build();
+    private void processGoogleAccessToken(String googleAccessToken) throws GeneralSecurityException {
+        WebClient webClient = WebClient.create();
+        String response = webClient.get()
+                .uri(googleTokenInfoUrl + "?access_token=" + googleAccessToken)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-        GoogleIdToken idToken = verifier.verify(googleToken);
-        if (idToken == null) {
-            throw new BadRequestException(ROW_DOES_NOT_EXIST, "Invalid Google ID token.");
+        if (response == null || response.contains("error")) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "Invalid ID token.");
         }
     }
 }
