@@ -25,6 +25,9 @@ public class SecurityConfig {
     @Value("${spring.jwt.secret}")
     private String secretkey;
 
+    @Value("${spring.google.token-info-url}")
+    private String googleTokenInfoUrl;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
 
@@ -38,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/login/**","/sign-up", "/swagger-ui/**","/v3/**", "/api/v1/user/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtTokenFilter(userService, secretkey), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtTokenFilter(userService, secretkey, googleTokenInfoUrl), UsernamePasswordAuthenticationFilter.class);
 
 
         return httpSecurity.build();
