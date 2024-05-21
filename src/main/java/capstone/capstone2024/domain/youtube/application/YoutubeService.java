@@ -70,7 +70,7 @@ public class YoutubeService {
 
             return subscriptions.stream()
                     .map(subscription -> YoutubeSubscribeResponseDto.builder()
-                            .title(subscription.getSnippet().getTitle())
+                            .channelName(subscription.getSnippet().getTitle())
                             .build())
                     .collect(Collectors.toList());
         } catch (GeneralSecurityException | IOException e) {

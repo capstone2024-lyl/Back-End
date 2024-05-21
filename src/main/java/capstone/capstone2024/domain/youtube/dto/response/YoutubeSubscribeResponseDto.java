@@ -1,4 +1,4 @@
-package capstone.capstone2024.domain.youtube.dto;
+package capstone.capstone2024.domain.youtube.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class YoutubeSubscribeResponseDto {
-    private String id;
-    private String title;
-    private String description;
-    private String channelId;
+    private String channelName;
+//    private String description;
+//    private String channelId;
 
 }
