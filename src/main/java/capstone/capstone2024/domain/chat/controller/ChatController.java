@@ -3,6 +3,7 @@ package capstone.capstone2024.domain.chat.controller;
 
 import capstone.capstone2024.domain.chat.application.ChatService;
 
+import capstone.capstone2024.domain.chat.dto.response.ChatPredictResponseDto;
 import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -35,6 +36,12 @@ public class ChatController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loginId = authentication.getName();
         return ResponseEntity.ok(chatService.findMBTI(loginId));
+    }
+
+    @PostMapping(value = "/predict_mbti", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ChatPredictResponseDto> predictMBTI(@RequestParam("file") MultipartFile file) {
+
+        return ResponseEntity.ok(chatService.predictMBTI(file));
     }
 
 
