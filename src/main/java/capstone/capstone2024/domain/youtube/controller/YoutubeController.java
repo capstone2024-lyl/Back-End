@@ -3,6 +3,7 @@ package capstone.capstone2024.domain.youtube.controller;
 import capstone.capstone2024.domain.youtube.application.YoutubeService;
 import capstone.capstone2024.domain.youtube.domain.YoutubeCategory;
 import capstone.capstone2024.domain.youtube.dto.request.YoutubeChannelCreateRequestDto;
+import capstone.capstone2024.domain.youtube.dto.response.YoutubeSubscribeCategoryResponseDto;
 import capstone.capstone2024.domain.youtube.dto.response.YoutubeSubscribeResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,17 @@ public class YoutubeController {
         return ResponseEntity.ok(youtubeService.createYoutubeChannel(category, youtubeChannelCreateRequestDtos));
 
     }
+
+
+    @PostMapping("/findCategory")
+    public ResponseEntity<List<YoutubeSubscribeCategoryResponseDto>> findCategory(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loginId = authentication.getName();
+        return ResponseEntity.ok(youtubeService.findCategory(loginId));
+
+    }
+
+
 
 
 }
