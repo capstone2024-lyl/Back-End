@@ -31,7 +31,39 @@ public class OpenAIService {
 
         OpenAIRequestDto request = OpenAIRequestDto.builder()
                 .model("gpt-4o")
-                .messages(List.of(Map.of("role", "user", "content", "Translate the following text to English: " + text)))
+                .messages(List.of(Map.of("role", "user", "content", "please translate given text file korean to english with sns . the results we're looking forward to is '아 진짜 개웃기네 ㅋㅋㅋ' translated to 'oh it's so funny lmao': " + text)))
+                .build();
+
+        OpenAIResponseDto response = client.post()
+                .body(Mono.just(request), OpenAIRequestDto.class)
+                .retrieve()
+                .bodyToMono(OpenAIResponseDto.class)
+                .block();
+
+        if (response == null || response.getChoices().isEmpty()) {
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to get response from OpenAI");
+        }
+
+        return response.getChoices().get(0).getMessage().get("content").trim();
+    }
+
+
+
+
+    public String analyzeMBTI(String chat, String mbti) {
+        WebClient client = WebClient.builder()
+                .baseUrl(OPENAI_URL)
+                .defaultHeader("Authorization", "Bearer " + openaiApiKey)
+                .build();
+
+        OpenAIRequestDto request = OpenAIRequestDto.builder()
+                .model("gpt-4o")
+                .messages(List.of(Map.of("role", "user", "content", "We predicted that the MBTI of the given text file is mbti:\n" + mbti +"\n"+
+                        "I'll give you the chat and tell me which sentence is the strongest basis for " + mbti + "\n" +
+                        "find four reasons for all components\n" +
+                        "And you must tell me the result only for Korean\n" +
+                        "\n" +
+                        "example : '나랑 만날래?'로 보아 E 성향이 나타나는 것을 알 수 있습니다. \n"+ chat)))
                 .build();
 
         OpenAIResponseDto response = client.post()
