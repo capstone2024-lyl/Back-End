@@ -1,6 +1,7 @@
 package capstone.capstone2024.domain.chat.dto.response;
 
 
+import capstone.capstone2024.domain.chat.domain.MBTI;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ public class ChatResponseDto {
     private Integer recognition;
     private Integer decision;
     private Integer lifeStyle;
-    private Enum mbti;
+    private MBTI mbti;
     private Boolean isChecked;
+
 }
