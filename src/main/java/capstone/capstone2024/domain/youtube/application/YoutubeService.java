@@ -1,10 +1,9 @@
 package capstone.capstone2024.domain.youtube.application;
 
-import capstone.capstone2024.domain.openai.application.OpenAIService;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserRepository;
-import capstone.capstone2024.domain.youtube.domain.Youtube;
-import capstone.capstone2024.domain.youtube.domain.YoutubeRepository;
+import capstone.capstone2024.domain.youtube.domain.*;
+import capstone.capstone2024.domain.youtube.dto.request.YoutubeChannelCreateRequestDto;
 import capstone.capstone2024.domain.youtube.dto.response.YoutubeSubscribeResponseDto;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -28,7 +27,8 @@ import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
 @RequiredArgsConstructor
 public class YoutubeService {
     private final UserRepository userRepository;
-    private final YoutubeRepository youtubeRepository;
+    private final YoutubeSubscribeRepository youtubeSubscribeRepository;
+    private final YoutubeChannelRepository youtubeChannelRepository;
 
     @Transactional
     public List<YoutubeSubscribeResponseDto> getSubscriptions(String googleAccessToken, String loginId) {
@@ -40,7 +40,7 @@ public class YoutubeService {
                 request.getHeaders().setAuthorization("Bearer " + googleAccessToken);
             }).setApplicationName("youtube-subscriptions").build();
 
-            YouTube.Subscriptions.List request = youtube.subscriptions().list("snippet,contentDetails");
+            YouTube.Subscriptions.List request = youtube.subscriptions().list("snippet");
             request.setMine(true);
             request.setMaxResults(10L);
             request.setRequestHeaders(new HttpHeaders().setCacheControl("no-cache"));
@@ -51,28 +51,34 @@ public class YoutubeService {
             SubscriptionListResponse response = request.execute();
             List<Subscription> subscriptions = response.getItems();
 
-//            // 구독 채널의 타이틀을 줄바꿈으로 구분하여 문자열로 생성
-//            String channelTitles = subscriptions.stream()
-//                    .map(subscription -> subscription.getSnippet().getTitle())
-//                    .collect(Collectors.joining("\n"));
-////            createChannelCategory(channelTitles);
+            List<YoutubeSubscribeResponseDto> youtubeDtos = subscriptions.stream()
+                    .map(subscription -> {
+                        String channelName = subscription.getSnippet().getTitle();
+                        YoutubeCategory category = youtubeChannelRepository.findByChannelName(channelName)
+                                .map(YoutubeChannel::getCategory)
+                                .orElse(YoutubeCategory.OTHERS);
+
+                        return YoutubeSubscribeResponseDto.builder()
+                                .channelName(channelName)
+                                .category(category)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
 
 
-            List<Youtube> youtubeEntities = subscriptions.stream()
-                    .map(subscription -> Youtube.builder()
-                            .channelName(subscription.getSnippet().getTitle())
+            List<YoutubeSubscribe> youtubeEntities = youtubeDtos.stream()
+                    .map(dto -> YoutubeSubscribe.builder()
+                            .channelName(dto.getChannelName())
+                            .category(dto.getCategory())
                             .user(user)
                             .build())
                     .collect(Collectors.toList());
 
-            youtubeRepository.saveAll(youtubeEntities);
+            youtubeSubscribeRepository.saveAll(youtubeEntities);
 
 
-            return subscriptions.stream()
-                    .map(subscription -> YoutubeSubscribeResponseDto.builder()
-                            .channelName(subscription.getSnippet().getTitle())
-                            .build())
-                    .collect(Collectors.toList());
+            return youtubeDtos;
+
         } catch (GeneralSecurityException | IOException e) {
             System.out.println("e.getMessage() = " + e.getMessage());
             throw new RuntimeException("Failed to retrieve subscriptions", e);
