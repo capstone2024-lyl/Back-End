@@ -1,15 +1,15 @@
 package capstone.capstone2024.domain.youtube.controller;
 
 import capstone.capstone2024.domain.youtube.application.YoutubeService;
+import capstone.capstone2024.domain.youtube.domain.YoutubeCategory;
+import capstone.capstone2024.domain.youtube.dto.request.YoutubeChannelCreateRequestDto;
 import capstone.capstone2024.domain.youtube.dto.response.YoutubeSubscribeResponseDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +26,15 @@ public class YoutubeController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loginId = authentication.getName();
         return ResponseEntity.ok(youtubeService.getSubscriptions(googleToken, loginId));
+    }
+
+    @PostMapping("/channels")
+    public ResponseEntity<String> createChannels(
+            @RequestParam YoutubeCategory category,
+            @Valid @RequestBody List<YoutubeChannelCreateRequestDto> youtubeChannelCreateRequestDtos
+    ){
+        return ResponseEntity.ok(youtubeService.createYoutubeChannel(category, youtubeChannelCreateRequestDtos));
+
     }
 
 
