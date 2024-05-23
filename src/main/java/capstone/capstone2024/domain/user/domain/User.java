@@ -29,9 +29,8 @@ public class User extends BaseEntity {
     @Column(name = "birthday")
     private LocalDate birthday;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatId")
-    private Chat chat;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    private Chat mbti;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<App> appList;
