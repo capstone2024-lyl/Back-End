@@ -84,4 +84,17 @@ public class YoutubeService {
 //
 //    }
 
+
+    public String createYoutubeChannel(YoutubeCategory category, List<YoutubeChannelCreateRequestDto> youtubeChannelCreateRequestDtoList){
+        List<YoutubeChannel> youtubeChannels = youtubeChannelCreateRequestDtoList.stream()
+                .map(dto -> YoutubeChannel.builder()
+                        .channelName(dto.getChannelName())
+                        .category(category)
+                        .build())
+                .collect(Collectors.toList());
+
+        youtubeChannelRepository.saveAll(youtubeChannels);
+        return "ok";
+    }
+
 }
