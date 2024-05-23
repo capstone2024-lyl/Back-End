@@ -3,7 +3,7 @@ package capstone.capstone2024.domain.user.domain;
 import capstone.capstone2024.domain.app.domain.App;
 import capstone.capstone2024.domain.base.BaseEntity;
 import capstone.capstone2024.domain.chat.domain.Chat;
-import capstone.capstone2024.domain.youtube.domain.Youtube;
+import capstone.capstone2024.domain.youtube.domain.YoutubeSubscribe;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,7 +36,7 @@ public class User extends BaseEntity {
     private List<App> appList;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Youtube> youtubeList;
+    private List<YoutubeSubscribe> youtubeList;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
