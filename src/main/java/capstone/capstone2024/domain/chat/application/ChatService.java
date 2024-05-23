@@ -45,41 +45,61 @@ public class ChatService {
     private String flaskApiUrl;
 
     @Transactional
-    public String filterChat(MultipartFile file, String loginId, String path) {
+    public ChatPredictResponseDto uploadChat(MultipartFile file, String loginId) {
         if (file.isEmpty()) {
             throw new BadRequestException(ErrorCode.NO_FILE_UPLOADED, "NO file uploaded");
         }
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
+        int chatCount = 0;
 
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            String outputFileName = user.getName() + "_" + file.getOriginalFilename();
-            Path outputPath = Paths.get(path + outputFileName);
-
             List<String> userMessages = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length > 2 && parts[1].replaceAll("\"", "").equals(user.getName())) {
                     userMessages.add(parts[2].replaceAll("\"", "").trim());
+                    chatCount++;
                 }
             }
-
             reader.close();
 
+            //1. 사용자 이름의 대화 필터링
             String combinedMessages = String.join("\n", userMessages);
+
+            //2. openai api로 번역
             String translatedMessages = openAIService.translateText(combinedMessages);
 
+            //3. 모델을 사용해 mbti 예측 및 저장
+            ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(translatedMessages), chatCount, user);
+            MBTI mbti = giveMBTI(responseDto);
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath.toFile()));
-            writer.write(translatedMessages);
-            writer.close();
+            //4. openai api에 mbti와 파일을 주고 근거 찾기
+//            String analyzedMessages = openAIService.analyzeMBTI(combinedMessages, mbti.name());
 
 
-            return "Filtered file created successfully: " + outputFileName;
+            if(user.getMbti() != null){
+                System.out.println("유저의 채팅정보가 존재합니다");
+                user.getMbti().update(responseDto.getEnergy(), responseDto.getRecognition(), responseDto.getDecision(), responseDto.getLifeStyle(), mbti, true, responseDto.getChatCount());
+            } else {
+                Chat chat = Chat.builder()
+                        .energy(responseDto.getEnergy())
+                        .recognition(responseDto.getRecognition())
+                        .decision(responseDto.getDecision())
+                        .lifeStyle(responseDto.getLifeStyle())
+                        .mbti(mbti)
+                        .isChecked(true)
+                        .chatCount(responseDto.getChatCount())
+//                        .description(analyzedMessages)
+                        .user(user)
+                        .build();
+                chatRepository.save(chat); // chat 엔티티 저장
+            }
 
+            return responseDto;
 
         } catch (IOException e) {
             throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to process file");
