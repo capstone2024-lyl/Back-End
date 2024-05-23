@@ -78,4 +78,65 @@ public class OpenAIService {
 
         return response.getChoices().get(0).getMessage().get("content").trim();
     }
+
+    @Transactional
+    public String youtubeSearch(String channelName) {
+
+        WebClient client = WebClient.builder()
+                .baseUrl(OPENAI_URL)
+                .defaultHeader("Authorization", "Bearer " + openaiApiKey)
+                .build();
+
+        OpenAIRequestDto request = OpenAIRequestDto.builder()
+                .model("gpt-4o")
+                .messages(List.of(Map.of(
+                        "role", "user",
+                        "content", "Find the YouTube channel category for the following channel names by searching on Namuwiki or YouTube. Provide the result in a JSON format with \"channelName\" and \"category\" fields for each channel. \n" +
+                                "\n" +
+                                "Channel Names:\n" +
+                                "- 채널명1\n" +
+                                "- 채널명2\n" +
+                                "- 채널명3\n" +
+                                "\n" +
+                                "Example JSON response:\n" +
+                                "[\n" +
+                                "  {\"channelName\": \"채널명1\", \"category\": \"카테고리1\"},\n" +
+                                "  {\"channelName\": \"채널명2\", \"category\": \"카테고리2\"},\n" +
+                                "  {\"channelName\": \"채널명3\", \"category\": \"카테고리3\"}\n" +
+                                "]\n" + channelName
+                )))
+                .build();
+
+        OpenAIResponseDto response = client.post()
+                .body(Mono.just(request), OpenAIRequestDto.class)
+                .retrieve()
+                .bodyToMono(OpenAIResponseDto.class)
+                .block();
+
+        if (response == null || response.getChoices().isEmpty()) {
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to get response from OpenAI");
+        }
+
+        System.out.println("response = " + response);
+
+
+        return response.getChoices().get(0).getMessage().get("content").trim();
+
+//        List<OpenAIYoutubeResponseDto.Choice.Message.Content> contents = response.getChoices().stream()
+//                .map(OpenAIYoutubeResponseDto.Choice::getMessage)
+//                .map(OpenAIYoutubeResponseDto.Choice.Message::getContent)
+//                .collect(Collectors.toList());
+
+//        return contents.stream()
+//                .map(content -> YoutubeSubscribeResponseDto.builder()
+//                        .title(content.getTitle())
+//                        .category(content.getCategory())
+//                        .build())
+//                .collect(Collectors.toList());
+
+    }
+
+
+
+
 }
