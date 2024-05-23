@@ -127,15 +127,18 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatPredictResponseDto predictMBTI(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new InternalServerException(ErrorCode.NO_FILE_UPLOADED, "No file uploaded");
+    public ChatPredictResponseDto predictMBTI(String translatedMessages) {
+        if (translatedMessages.isEmpty() || translatedMessages == null) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "No file uploaded");
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        File tempFile = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
+        File tempFile = null;
         try {
-            file.transferTo(tempFile);
+            tempFile = File.createTempFile("filltered_chat", ".txt");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            writer.write(translatedMessages);
+            writer.close();
         } catch (IOException e) {
             throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to save temp file");
         }
@@ -147,16 +150,19 @@ public class ChatService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     flaskApiUrl, HttpMethod.POST, requestEntity, String.class);
-            log.debug("Response Entity: {}", response);
             if (response.getStatusCode() == HttpStatus.OK) {
                 String jsonResponse = response.getBody();
-                return objectMapper.readValue(jsonResponse, ChatPredictResponseDto.class);
+                ChatPredictResponseDto chatPredictResponseDto = objectMapper.readValue(jsonResponse, ChatPredictResponseDto.class);
+
+                chatPredictResponseDto = adjustValues(chatPredictResponseDto);
+
+                return chatPredictResponseDto;
+
             } else {
                 throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to get response from Fl");
             }
