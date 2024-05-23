@@ -2,6 +2,7 @@ package capstone.capstone2024.domain.chat.application;
 
 import capstone.capstone2024.domain.chat.domain.Chat;
 import capstone.capstone2024.domain.chat.domain.ChatRepository;
+import capstone.capstone2024.domain.chat.domain.MBTI;
 import capstone.capstone2024.domain.chat.dto.response.ChatPredictResponseDto;
 import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
 import capstone.capstone2024.domain.openai.application.OpenAIService;
@@ -24,8 +25,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -106,26 +105,6 @@ public class ChatService {
         }
     }
 
-
-    @Transactional
-    public ChatResponseDto findMBTI(String loginId){
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-        Chat chat = chatRepository.findById(user.getChat().getId())
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "mbti 검사 결과가 없습니다."));
-
-
-        return ChatResponseDto.builder()
-                .energy(chat.getEnergy())
-                .recognition(chat.getRecognition())
-                .decision(chat.getDecision())
-                .lifeStyle(chat.getLifeStyle())
-                .mbti(chat.getMbti())
-                .isChecked(true)
-                .build();
-    }
-
     @Transactional
     public ChatPredictResponseDto predictMBTI(String translatedMessages) {
         if (translatedMessages.isEmpty() || translatedMessages == null) {
@@ -173,7 +152,148 @@ public class ChatService {
         }
     }
 
+    private ChatPredictResponseDto adjustValues(ChatPredictResponseDto responseDto) {
+        if (responseDto.getEnergy() == 50) responseDto.setEnergy(responseDto.getEnergy() - 1);
+        if (responseDto.getRecognition() == 50) responseDto.setRecognition(responseDto.getRecognition() - 1);
+        if (responseDto.getDecision() == 50) responseDto.setDecision(responseDto.getDecision() - 1);
+        if (responseDto.getLifeStyle() == 50) responseDto.setLifeStyle(responseDto.getLifeStyle() - 1);
+        return responseDto;
+    }
 
+    private ChatPredictResponseDto updateMBTI(ChatPredictResponseDto responseDto, Integer chatCount, User user){
+        if(user.getMbti() != null){
+            Chat preChat = user.getMbti();
+            Integer updateChatCount = preChat.getChatCount() + chatCount;
+            Integer updateEnergy = calculateMBTI(preChat.getEnergy(), preChat.getChatCount(), responseDto.getEnergy(), chatCount);
+            Integer updateRecognition = calculateMBTI(preChat.getRecognition(), preChat.getChatCount(), responseDto.getRecognition(), chatCount);
+            Integer updateDecision = calculateMBTI(preChat.getDecision(), preChat.getChatCount(), responseDto.getDecision(), chatCount);
+            Integer updateLifeStyle = calculateMBTI(preChat.getLifeStyle(), preChat.getChatCount(), responseDto.getLifeStyle(), chatCount);
+
+            return ChatPredictResponseDto.builder()
+                    .energy(updateEnergy)
+                    .recognition(updateRecognition)
+                    .decision(updateDecision)
+                    .lifeStyle(updateLifeStyle)
+                    .chatCount(updateChatCount)
+                    .build();
+
+        } else{
+            return ChatPredictResponseDto.builder()
+                    .energy(responseDto.getEnergy())
+                    .recognition(responseDto.getRecognition())
+                    .decision(responseDto.getDecision())
+                    .lifeStyle(responseDto.getLifeStyle())
+                    .chatCount(chatCount)
+                    .build();
+        }
+    }
+    private Integer calculateMBTI(int preValue, int preChatCount, int value, int chatCount){
+        return (preValue * preChatCount + value * chatCount) / (preChatCount + chatCount);
+    }
+
+    private MBTI giveMBTI(ChatPredictResponseDto responseDto) {
+        StringBuilder mbtiBuilder = new StringBuilder();
+
+        mbtiBuilder.append(responseDto.getEnergy() < 50 ? "I" : "E");
+        mbtiBuilder.append(responseDto.getRecognition() < 50 ? "N" : "S");
+        mbtiBuilder.append(responseDto.getDecision() < 50 ? "F" : "T");
+        mbtiBuilder.append(responseDto.getLifeStyle() < 50 ? "P" : "J");
+
+        return MBTI.valueOf(mbtiBuilder.toString());
+    }
+
+
+
+    @Transactional
+    public ChatResponseDto findMBTI(String loginId){
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        Chat chat = chatRepository.findById(user.getMbti().getId())
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "mbti 검사 결과가 없습니다."));
+
+        return ChatResponseDto.builder()
+                .energy(chat.getEnergy())
+                .recognition(chat.getRecognition())
+                .decision(chat.getDecision())
+                .lifeStyle(chat.getLifeStyle())
+                .mbti(chat.getMbti())
+                .isChecked(true)
+                .build();
+    }
+
+
+
+    //번역 테스트
+    @Transactional
+    public String translateChat(MultipartFile file, String loginId) {
+        if (file.isEmpty()) {
+            throw new BadRequestException(ErrorCode.NO_FILE_UPLOADED, "NO file uploaded");
+        }
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        int chatCount = 0;
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            List<String> userMessages = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length > 2 && parts[1].replaceAll("\"", "").equals(user.getName())) {
+                    userMessages.add(parts[2].replaceAll("\"", "").trim());
+                    chatCount++;
+                }
+            }
+            reader.close();
+            //1. 사용자 이름의 대화 필터링
+            String combinedMessages = String.join("\n", userMessages);
+
+            //2. openai api로 번역
+            String translatedMessages = openAIService.translateText(combinedMessages);
+
+            return translatedMessages;
+
+        } catch (IOException e) {
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to process file");
+        }
+    }
+
+    //분석 테스트
+    @Transactional
+    public String analyzeChat(MultipartFile file, String loginId, String mbti) {
+        if (file.isEmpty()) {
+            throw new BadRequestException(ErrorCode.NO_FILE_UPLOADED, "NO file uploaded");
+        }
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            List<String> userMessages = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length > 2 && parts[1].replaceAll("\"", "").equals(user.getName())) {
+                    userMessages.add(parts[2].replaceAll("\"", "").trim());
+                }
+            }
+            reader.close();
+
+            //1. 사용자 이름의 대화 필터링
+            String combinedMessages = String.join("\n", userMessages);
+
+            //2. openai api로 번역
+            String analyzedMessages = openAIService.analyzeMBTI(combinedMessages, mbti);
+
+            return analyzedMessages;
+
+        } catch (IOException e) {
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to process file");
+        }
+    }
 
 
 }
