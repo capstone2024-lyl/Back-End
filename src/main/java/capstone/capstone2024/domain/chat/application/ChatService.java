@@ -58,13 +58,18 @@ public class ChatService {
             List<String> userMessages = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length > 2 && parts[1].replaceAll("\"", "").equals(user.getName())) {
-                    userMessages.add(parts[2].replaceAll("\"", "").trim());
+                // 이름을 찾고 그 다음에 나오는 ':'를 기준으로 대화 내용 추출
+                if (line.contains(user.getName() + " : ")) {
+                    String message = line.split(user.getName() + " : ")[1].trim();
+                    userMessages.add(message);
                     chatCount++;
                 }
             }
             reader.close();
+
+            if(chatCount == 0){
+                throw new BadRequestException(ErrorCode.INVALID_FILE_UPLOADED, "유효한 대화 내용이 아니거나 유효한 사용자 명이 아닙니다.");
+            }
 
             //1. 사용자 이름의 대화 필터링
             String combinedMessages = String.join("\n", userMessages);
