@@ -25,7 +25,41 @@ public enum AppCategory {
         packageToCategoryMap.put("com.kakao.talk", CHAT);
         packageToCategoryMap.put("com.android.mms", CHAT);
         packageToCategoryMap.put("com.instagram.android", SNS);
-        packageToCategoryMap.put("com.facebook.katana", SNS);
+        packageToCategoryMap.put("com.google.android.youtube", VIDEO);
+        packageToCategoryMap.put("com.sec.android.app.launcher", CHAT);
+        packageToCategoryMap.put("com.sec.android.app.sbrowser", SNS);
+        packageToCategoryMap.put("com.nhn.android.webtoon", WEBTOON);
+        packageToCategoryMap.put("com.everytime.v2", SNS);
+        packageToCategoryMap.put("us.zoom.videomeetings", CHAT);
+        packageToCategoryMap.put("com.android.settings", LIFESTYLE);
+        packageToCategoryMap.put("com.naver.clova.minute", CHAT);
+        packageToCategoryMap.put("com.openai.chatgpt", CHAT);
+        packageToCategoryMap.put("com.google.android.gms", CHAT);
+        packageToCategoryMap.put("com.gramgames.tenten", GAME);
+        packageToCategoryMap.put("com.google.android.apps.youtube.music", MUSIC);
+        packageToCategoryMap.put("com.nhn.android.nmap", MAP);
+        packageToCategoryMap.put("com.discord", CHAT);
+        packageToCategoryMap.put("com.samsung.android.dialer", PHONE_DECORATION);
+        packageToCategoryMap.put("com.sampleapp", OTHERS);
+        packageToCategoryMap.put("com.samsung.android.messaging", PHONE_DECORATION);
+        packageToCategoryMap.put("viva.republica.toss", LIFESTYLE);
+        packageToCategoryMap.put("kr.co.symtra.cauid", LIFESTYLE);
+        packageToCategoryMap.put("com.sec.android.app.myfiles", LIFESTYLE);
+        packageToCategoryMap.put("com.samsung.android.spay", LIFESTYLE);
+        packageToCategoryMap.put("notion.id", E_BOOK);
+        packageToCategoryMap.put("teamDoppelGanger.SmarterSubway", MAP);
+        packageToCategoryMap.put("com.sec.android.app.clockpackage", LIFESTYLE);
+        packageToCategoryMap.put("com.google.android.documentsui", OTHERS);
+        packageToCategoryMap.put("com.instructure.candroid.xinics.production", LIFESTYLE);
+        packageToCategoryMap.put("com.sec.android.app.camera", LIFESTYLE);
+        packageToCategoryMap.put("com.android.systemui", OTHERS);
+        packageToCategoryMap.put("com.coupang.mobile", LIFESTYLE);
+        packageToCategoryMap.put("com.android.vending", LIFESTYLE);
+        packageToCategoryMap.put("com.samsung.android.forest", LIFESTYLE);
+        packageToCategoryMap.put("com.example.untitled1", LIFESTYLE);
+
+
+
         // 추가적인 패키지명과 카테고리 매핑도 여기에 추가할 수 있습니다.
     }
 
