@@ -1,8 +1,9 @@
 package capstone.capstone2024.domain.user.dto.response;
 
-import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
-import capstone.capstone2024.domain.user.domain.UserNickname;
-import capstone.capstone2024.domain.youtube.domain.YoutubeChannel;
+import capstone.capstone2024.domain.app.dto.response.AppsResponseDto;
+import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
+import capstone.capstone2024.domain.nickname.domain.Nickname;
+import capstone.capstone2024.domain.youtube.dto.response.YoutubeTop3CategoriesResponseDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,16 +20,15 @@ public class UserResponseDto {
 
     private LocalDate birthday;
 
-    private String mbti;
+    private ChatResponseDto mbti;
 
-    private List<AppResponseDto> apps;
+    private AppsResponseDto apps;
 
-    private List<YoutubeChannel> category;
+    private YoutubeTop3CategoriesResponseDto category;
 
-    private List<UserNickname> nicknames;
+    private List<String> nicknames;
 
     private List<String> photo;
 
-    private List<String> nickname;
 
 }
