@@ -56,7 +56,7 @@ public class YoutubeService {
             List<YoutubeSubscribeResponseDto> youtubeDtos = subscriptions.stream()
                     .map(subscription -> {
                         String channelName = subscription.getSnippet().getTitle();
-                        YoutubeCategory category = youtubeChannelRepository.findByChannelName(channelName)
+                        YoutubeCategory category = youtubeChannelRepository.findFirstByChannelName(channelName)
                                 .map(YoutubeChannel::getCategory)
                                 .orElse(YoutubeCategory.OTHERS);
 
@@ -78,6 +78,9 @@ public class YoutubeService {
 
             youtubeSubscribeRepository.saveAll(youtubeEntities);
 
+            //카테고리 별 갯수 저장
+            saveCategoryCounts(youtubeDtos, user);
+
 
             return youtubeDtos;
 
@@ -85,6 +88,24 @@ public class YoutubeService {
             System.out.println("e.getMessage() = " + e.getMessage());
             throw new RuntimeException("Failed to retrieve subscriptions", e);
         }
+    }
+
+    private void saveCategoryCounts(List<YoutubeSubscribeResponseDto> youtubeDtos, User user) {
+        // 카테고리별로 유튜브 채널의 개수 카운팅
+        Map<YoutubeCategory, Long> categoryCountMap = youtubeDtos.stream()
+                .map(YoutubeSubscribeResponseDto::getCategory)
+                .filter(category -> category != YoutubeCategory.OTHERS)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        // 카테고리별로 카운팅된 개수를 youtubecategories 엔티티에 저장
+        categoryCountMap.forEach((category, count) -> {
+            YoutubeCategories youtubeCategory = YoutubeCategories.builder()
+                    .user(user)
+                    .category(category)
+                    .categoryCount(count) // Long -> int로 변환하여 저장
+                    .build();
+            youtubeCategoriesRepository.save(youtubeCategory);
+        });
     }
 
 
