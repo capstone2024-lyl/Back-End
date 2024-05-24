@@ -1,6 +1,6 @@
 package capstone.capstone2024.domain.user.dto.response;
 
-import capstone.capstone2024.domain.user.domain.UserNickname;
+import capstone.capstone2024.domain.nickname.domain.Nickname;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,5 +10,5 @@ import java.util.List;
 @Data
 public class UserNicknameResponseDto {
     private String loginId;
-    private List<UserNickname> nicknames;
+    private List<Nickname> nicknames;
 }

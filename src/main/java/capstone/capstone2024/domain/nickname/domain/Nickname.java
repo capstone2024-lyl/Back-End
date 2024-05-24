@@ -1,9 +1,9 @@
-package capstone.capstone2024.domain.user.domain;
+package capstone.capstone2024.domain.nickname.domain;
 
 import lombok.Getter;
 
 @Getter
-public enum UserNickname {
+public enum Nickname {
     //chat nickname
     HEAVY_TALKER("수다쟁이"),
     LAUGH_MASTER("웃음왕"),
@@ -37,7 +37,7 @@ public enum UserNickname {
 
     private final String description;
 
-    UserNickname(String description) {
+    Nickname(String description) {
         this.description = description;
     }
 
