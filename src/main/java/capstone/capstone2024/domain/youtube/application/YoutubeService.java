@@ -4,7 +4,7 @@ import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.user.domain.UserRepository;
 import capstone.capstone2024.domain.youtube.domain.*;
 import capstone.capstone2024.domain.youtube.dto.request.YoutubeChannelCreateRequestDto;
-import capstone.capstone2024.domain.youtube.dto.response.YoutubeSubscribeCategoryResponseDto;
+import capstone.capstone2024.domain.youtube.dto.response.YoutubeTop3CategoriesResponseDto;
 import capstone.capstone2024.domain.youtube.dto.response.YoutubeSubscribeResponseDto;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
@@ -33,6 +33,7 @@ public class YoutubeService {
     private final UserRepository userRepository;
     private final YoutubeSubscribeRepository youtubeSubscribeRepository;
     private final YoutubeChannelRepository youtubeChannelRepository;
+    private final YoutubeCategoriesRepository youtubeCategoriesRepository;
 
     @Transactional
     public List<YoutubeSubscribeResponseDto> getSubscriptions(String googleAccessToken, String loginId) {
@@ -124,49 +125,25 @@ public class YoutubeService {
 
 
 
-
-    public List<YoutubeSubscribeCategoryResponseDto> findCategory(String loginId){
+    @Transactional(readOnly = true)
+    public YoutubeTop3CategoriesResponseDto findTop3Categories(String loginId) {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 아이디입니다."));
 
-        List<YoutubeSubscribe> userSubscriptions = user.getYoutubeList();
+        // 카테고리별로 카운트가 저장된 youtubecategories 엔티티 조회
+        List<YoutubeCategories> categories = youtubeCategoriesRepository.findByUserId(user.getId());
 
-        // 모든 구독 카테고리 가져오기
-        List<YoutubeCategory> allCategories = userSubscriptions.stream()
-                .map(YoutubeSubscribe::getCategory)
+        // 카테고리별 카운트로부터 Top 3 카테고리를 내림차순으로 추출
+        List<YoutubeCategory> top3Categories = categories.stream()
+                .sorted(Comparator.comparingLong(YoutubeCategories::getCategoryCount).reversed()) // 내림차순 정렬
+                .limit(3) // 상위 3개만 가져오기
+                .map(YoutubeCategories::getCategory)
                 .collect(Collectors.toList());
 
-        // 카테고리별 등장 횟수 세기
-        Map<YoutubeCategory, Long> categoryCountMap = allCategories.stream()
-                .collect(Collectors.groupingBy(category -> category, Collectors.counting()));
-
-        // "others" 카테고리 제외
-        categoryCountMap.remove(YoutubeCategory.OTHERS);
-
-        // 등장 횟수를 기준으로 내림차순 정렬
-        List<Map.Entry<YoutubeCategory, Long>> sortedCategories =
-                new ArrayList<>(categoryCountMap.entrySet());
-        sortedCategories.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-
-        // 상위 3개 카테고리 선택
-        List<YoutubeCategory> top3Categories = sortedCategories.stream()
-                .limit(3)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        // 결과 반환
-        List<YoutubeSubscribeCategoryResponseDto> result = top3Categories.stream()
-                .map(category -> YoutubeSubscribeCategoryResponseDto.builder()
-                        .category(category)
-                        .build())
-                .collect(Collectors.toList());
-
-        return result;
-
+        return YoutubeTop3CategoriesResponseDto.builder()
+                .youtubeCategoryList(top3Categories)
+                .isChecked(!top3Categories.isEmpty())
+                .build();
     }
-
-
-
-
 
 }
