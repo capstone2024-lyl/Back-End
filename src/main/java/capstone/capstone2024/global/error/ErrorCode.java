@@ -26,6 +26,7 @@ public enum ErrorCode {
     INVALID_FILE_EXTENSION(4015),
     INVALID_EXPIRE_DATE(4016),
     NO_FILE_UPLOADED(4017),
+    INVALID_FILE_UPLOADED(4018),
 
     /**
      * 401 Unauthorized
