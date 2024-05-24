@@ -81,8 +81,6 @@ public class ChatService {
             ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(translatedMessages), chatCount, user);
             MBTI mbti = giveMBTI(responseDto);
 
-            //4. openai api에 mbti와 파일을 주고 근거 찾기
-//            String analyzedMessages = openAIService.analyzeMBTI(combinedMessages, mbti.name());
 
 
             if(user.getMbti() != null){
