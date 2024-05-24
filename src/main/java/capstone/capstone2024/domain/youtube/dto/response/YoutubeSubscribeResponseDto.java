@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class YoutubeSubscribeResponseDto {
     private String channelName;
-//    private String description;
     private YoutubeCategory category;
 
 }
