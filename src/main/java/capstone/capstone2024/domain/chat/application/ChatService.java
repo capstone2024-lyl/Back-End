@@ -211,17 +211,17 @@ public class ChatService {
     public ChatResponseDto findMBTI(String loginId){
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+        Chat chat = chatRepository.findByUserId(user.getId()).orElse(null);
 
-        Chat chat = chatRepository.findById(user.getMbti().getId())
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "mbti 검사 결과가 없습니다."));
+        boolean isChecked = (chat != null); // chat이 존재하면 true, 없으면 false
 
         return ChatResponseDto.builder()
-                .energy(chat.getEnergy())
-                .recognition(chat.getRecognition())
-                .decision(chat.getDecision())
-                .lifeStyle(chat.getLifeStyle())
-                .mbti(chat.getMbti())
-                .isChecked(true)
+                .energy((chat != null) ? chat.getEnergy() : null)
+                .recognition((chat != null) ? chat.getRecognition() : null)
+                .decision((chat != null) ? chat.getDecision() : null)
+                .lifeStyle((chat != null) ? chat.getLifeStyle() : null)
+                .mbti((chat != null) ? chat.getMbti() : null)
+                .isChecked(isChecked)
                 .build();
     }
 
