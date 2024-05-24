@@ -5,9 +5,10 @@ import capstone.capstone2024.domain.app.domain.AppCategory;
 import capstone.capstone2024.domain.app.domain.AppRepository;
 import capstone.capstone2024.domain.app.dto.request.AppUsageCreateRequestDto;
 import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
-import capstone.capstone2024.domain.user.application.UserService;
+import capstone.capstone2024.domain.app.dto.response.AppsResponseDto;
+import capstone.capstone2024.domain.nickname.application.NicknameService;
 import capstone.capstone2024.domain.user.domain.User;
-import capstone.capstone2024.domain.user.domain.UserNickname;
+import capstone.capstone2024.domain.nickname.domain.Nickname;
 import capstone.capstone2024.domain.user.domain.UserRepository;
 import capstone.capstone2024.global.error.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -27,22 +28,33 @@ import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
 public class AppService {
     private final AppRepository appRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
+    private final NicknameService nicknameService;
 
 
     @Transactional(readOnly = true)
-    public List<AppResponseDto> findTop10App(String loginId){
+    public AppsResponseDto findTop10App(String loginId){
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
         List<App> apps = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId());
 
-        return apps.stream()
+
+        boolean isChecked = !apps.isEmpty();
+
+        List<AppResponseDto> appsResponseDto= apps.stream()
                 .map(app -> AppResponseDto.builder()
                         .appPackageName(app.getAppPackageName())
                         .usageTime(app.getUsageTime())
                         .build())
                 .collect(Collectors.toList());
+
+
+
+        return AppsResponseDto.builder()
+                .apps(appsResponseDto)
+                .isChecked(isChecked)
+                .build();
+
     }
 
     @Transactional
@@ -96,9 +108,9 @@ public class AppService {
         for (AppCategory category : AppCategory.values()) {
             double averageUsage = category.getAverageUsage();
             if (usageByCategory.getOrDefault(category, 0) > averageUsage) {
-                UserNickname nickname = determineNicknameByCategory(category);
+                Nickname nickname = determineNicknameByCategory(category);
                 if(nickname != null){
-                    userService.addNickname(user.getLoginId(), nickname);
+                    nicknameService.addNickname(user.getLoginId(), nickname);
                 }
             }
         }
@@ -107,32 +119,32 @@ public class AppService {
         int totalAverageUsage = 2310;
         int totalMinimumUsage = 420;
         if(totalUsageTime > totalAverageUsage) {
-            userService.addNickname(user.getLoginId(), UserNickname.ADDICT);
+            nicknameService.addNickname(user.getLoginId(), Nickname.ADDICT);
         } else if (totalUsageTime > totalMinimumUsage) {
-            userService.addNickname(user.getLoginId(), UserNickname.HEALTY_USER);
+            nicknameService.addNickname(user.getLoginId(), Nickname.HEALTY_USER);
         } else{
-            userService.addNickname(user.getLoginId(), UserNickname.DOPAMINE_DETOXER);
+            nicknameService.addNickname(user.getLoginId(), Nickname.DOPAMINE_DETOXER);
         }
     }
 
-    private UserNickname determineNicknameByCategory(AppCategory category) {
+    private Nickname determineNicknameByCategory(AppCategory category) {
         switch (category) {
             case CHAT:
-                return UserNickname.HEAVY_TALKER;
+                return Nickname.HEAVY_TALKER;
             case SNS:
-                return UserNickname.SNS_ADDICT;
+                return Nickname.SNS_ADDICT;
             case GAME:
-                return UserNickname.GAME_HOLIC;
+                return Nickname.GAME_HOLIC;
             case MUSIC:
-                return UserNickname.MUSIC_LOVER;
+                return Nickname.MUSIC_LOVER;
             case NEWS:
-                return UserNickname.NEWS_HUNTER;
+                return Nickname.NEWS_HUNTER;
             case VIDEO:
-                return UserNickname.VIDEO_ADDICT;
+                return Nickname.VIDEO_ADDICT;
             case WEBTOON:
-                return UserNickname.WEBTOON_ADDICT;
+                return Nickname.WEBTOON_ADDICT;
             case E_BOOK:
-                return UserNickname.STUDY_MASTER;
+                return Nickname.STUDY_MASTER;
             default:
                 return null;
         }
