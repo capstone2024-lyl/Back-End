@@ -10,7 +10,7 @@ public enum Nickname {
     CURIOSITY_KING("호기심 왕"),
 
     //youtube category
-    SHORTS_ADDICT("숏츠홀릭"),
+    ENTERTAINMENT_PD("예능 국장"),
     GAME_HOLIC("게임홀릭"),
     ATLETE_AT_HEART("마음만은 운동선수"),
     COUCH_DIRECTOR("방구석 영화 감독"),
