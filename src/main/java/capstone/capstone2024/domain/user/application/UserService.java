@@ -1,8 +1,6 @@
 package capstone.capstone2024.domain.user.application;
 
-import capstone.capstone2024.domain.app.domain.App;
-import capstone.capstone2024.domain.app.domain.AppRepository;
-import capstone.capstone2024.domain.app.dto.response.AppResponseDto;
+import capstone.capstone2024.domain.app.application.AppService;
 import capstone.capstone2024.domain.app.dto.response.AppsResponseDto;
 import capstone.capstone2024.domain.chat.application.ChatService;
 import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
@@ -34,7 +32,7 @@ import static capstone.capstone2024.global.error.ErrorCode.*;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
-    private final AppRepository appRepository;
+    private final AppService appService;
     private final YoutubeService youtubeService;
     private final ChatService chatService;
 
@@ -107,27 +105,13 @@ public class UserService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
 
-        List<App> appList = appRepository.findByUserIdOrderByUsageTimeDesc(user.getId());
-        List<AppResponseDto> appResponseDtos = appList.stream()
-                .map(app -> AppResponseDto.builder()
-                        .appPackageName(app.getAppPackageName())
-                        .usageTime(app.getUsageTime())
-                        .build())
-                .collect(Collectors.toList());
-
-        boolean isAppsChecked = !appResponseDtos.isEmpty();
-        AppsResponseDto appsResponseDto = AppsResponseDto.builder()
-                .apps(appResponseDtos)
-                .isChecked(isAppsChecked)
-                .build();
-
+        AppsResponseDto appsResponseDto = appService.findTop10App(loginId);
         YoutubeTop3CategoriesResponseDto top3Categories = youtubeService.findTop3Categories(loginId);
         ChatResponseDto mbtiInfo = chatService.findMBTI(loginId);
 
         List<String> userNicknameValues = user.getNickname().stream()
                 .map(Nickname::getDescription)
                 .collect(Collectors.toList());
-        System.out.println("userNicknameValues = " + userNicknameValues);
 
         return UserResponseDto.builder()
                 .name(user.getName())
