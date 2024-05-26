@@ -85,27 +85,24 @@ public class YoutubeService {
 
     private void saveCategoryCounts(List<YoutubeSubscribeResponseDto> youtubeDtos, User user) {
         List<YoutubeCategories> existCategories = youtubeCategoriesRepository.findByUserIdAndIsDeletedFalse(user.getId());
-        if(!existCategories.isEmpty()){
-            existCategories.stream()
-                    .map(category -> category.updateIsDeleted(false))
-                    .collect(Collectors.toList());
-        }
-        // 카테고리별로 유튜브 채널의 개수 카운팅
-        Map<YoutubeCategory, Long> categoryCountMap = youtubeDtos.stream()
-                .map(YoutubeSubscribeResponseDto::getCategory)
-                .filter(category -> category != YoutubeCategory.OTHERS)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        // 카테고리별로 카운팅된 개수를 youtubecategories 엔티티에 저장
-        categoryCountMap.forEach((category, count) -> {
-            YoutubeCategories youtubeCategory = YoutubeCategories.builder()
-                    .user(user)
-                    .category(category)
-                    .isDeleted(false)
-                    .categoryCount(count) // Long -> int로 변환하여 저장
-                    .build();
-            youtubeCategoriesRepository.save(youtubeCategory);
-        });
+        existCategories.forEach(category -> category.setIsDeleted(true));
+
+        // 새로운 카테고리 엔티티들을 저장
+        Map<YoutubeCategory, Long> categoryCountMap = youtubeDtos.stream()
+                .filter(dto -> dto.getCategory() != YoutubeCategory.OTHERS)
+                .collect(Collectors.groupingBy(YoutubeSubscribeResponseDto::getCategory, Collectors.counting()));
+
+        List<YoutubeCategories> newCategories = categoryCountMap.entrySet().stream()
+                .map(entry -> YoutubeCategories.builder()
+                        .user(user)
+                        .category(entry.getKey())
+                        .categoryCount(entry.getValue()) // Long을 int로 변환하여 저장
+                        .isDeleted(false)
+                        .build())
+                .collect(Collectors.toList());
+
+        youtubeCategoriesRepository.saveAll(newCategories);
     }
 
 
@@ -151,6 +148,7 @@ public class YoutubeService {
         if (categories.isEmpty()) {
             return null;
         }
+
         YoutubeCategory topCategory = categories.stream()
                 .sorted(Comparator.comparingLong(YoutubeCategories::getCategoryCount).reversed())
                 .map(YoutubeCategories::getCategory)

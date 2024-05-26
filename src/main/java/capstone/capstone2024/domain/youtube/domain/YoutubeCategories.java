@@ -23,12 +23,8 @@ public class YoutubeCategories extends BaseEntity {
 
     private Boolean isDeleted;
 
-    public YoutubeCategories updateIsDeleted(Boolean isDeleted){
-        return YoutubeCategories.builder()
-                .user(this.user)
-                .category(this.category)
-                .categoryCount(this.categoryCount)
-                .isDeleted(isDeleted)
-                .build();
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
+
 }
