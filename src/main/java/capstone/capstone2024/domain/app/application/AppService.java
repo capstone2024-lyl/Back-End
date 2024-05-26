@@ -108,7 +108,7 @@ public class AppService {
         for (AppCategory category : AppCategory.values()) {
             double averageUsage = category.getAverageUsage();
             if (usageByCategory.getOrDefault(category, 0) > averageUsage) {
-                Nickname nickname = determineNicknameByCategory(category);
+                Nickname nickname = assignNicknameByCategory(category);
                 if(nickname != null){
                     nicknameService.addNickname(user.getLoginId(), nickname);
                 }
@@ -127,7 +127,7 @@ public class AppService {
         }
     }
 
-    private Nickname determineNicknameByCategory(AppCategory category) {
+    private Nickname assignNicknameByCategory(AppCategory category) {
         switch (category) {
             case CHAT:
                 return Nickname.HEAVY_TALKER;
