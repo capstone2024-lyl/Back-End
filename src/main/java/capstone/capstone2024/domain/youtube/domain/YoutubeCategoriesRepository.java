@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface YoutubeCategoriesRepository extends JpaRepository<YoutubeCategories, Long> {
-    List<YoutubeCategories> findByUserId(Long userId);
+
+    List<YoutubeCategories> findByUserIdAndIsDeletedFalse(Long userId);
 }
