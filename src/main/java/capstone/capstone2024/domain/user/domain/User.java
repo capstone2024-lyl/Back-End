@@ -5,7 +5,6 @@ import capstone.capstone2024.domain.base.BaseEntity;
 import capstone.capstone2024.domain.chat.domain.Chat;
 import capstone.capstone2024.domain.nickname.domain.Nickname;
 import capstone.capstone2024.domain.youtube.domain.YoutubeCategories;
-import capstone.capstone2024.domain.youtube.domain.YoutubeSubscribe;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,9 +35,6 @@ public class User extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<App> appList;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
-    private List<YoutubeSubscribe> youtubeList;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<YoutubeCategories> youtubeCategories;
