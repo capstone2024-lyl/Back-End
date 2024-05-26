@@ -81,7 +81,8 @@ public class YoutubeService {
 
             //카테고리 별 갯수 저장
             saveCategoryCounts(youtubeDtos, user);
-
+            Nickname userNickname = assignNicknameByYoutube(user);
+            nicknameService.addNickname(loginId, userNickname);
 
             return youtubeDtos;
 
@@ -144,6 +145,34 @@ public class YoutubeService {
                 .youtubeCategoryList(top3Categories)
                 .isChecked(!top3Categories.isEmpty())
                 .build();
+    }
+
+
+    private Nickname assignNicknameByYoutube(User user){
+        List<YoutubeCategories> categories = youtubeCategoriesRepository.findByUserIdAndIsDeletedFalse(user.getId());
+        if (categories.isEmpty()) {
+            return null;
+        }
+        YoutubeCategory topCategory = categories.stream()
+                .sorted(Comparator.comparingLong(YoutubeCategories::getCategoryCount).reversed())
+                .map(YoutubeCategories::getCategory)
+                .findFirst()
+                .orElse(YoutubeCategory.OTHERS);
+
+        switch (topCategory) {
+            case ENTERTAINMENT:
+                return Nickname.ENTERTAINMENT_PD;
+            case GAME:
+                return Nickname.GAME_HOLIC;
+            case SPORTS:
+                return Nickname.ATLETE_AT_HEART;
+            case MOVIE:
+                return Nickname.COUCH_DIRECTOR;
+            default:
+                return null;
+        }
+
+
     }
 
 }
