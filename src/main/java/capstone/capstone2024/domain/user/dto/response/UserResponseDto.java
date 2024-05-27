@@ -30,5 +30,7 @@ public class UserResponseDto {
 
     private List<String> photo;
 
+    private String profileImageUrl;
+
 
 }

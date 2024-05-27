@@ -43,6 +43,9 @@ public class UserService {
     private String secretKey;
     private Long expiredMs = 1000 * 60 * 60L;
 
+    @Value("${cloud.default.profile.image.url}")
+    private String defaultProfileImageUrl;
+
     @Transactional(readOnly = true)
     public boolean checkSignUpIdDuplicate(String loginId) {
         return userRepository.existsByLoginId(loginId);
@@ -61,6 +64,7 @@ public class UserService {
             imageUrl = storageService.upload(profileImage);
         } else{
             System.out.println("이미지가 안와요 ㅠㅠ");
+            imageUrl = defaultProfileImageUrl;
         }
 
         User user = userCreateRequestDto.toEntity(encoder.encode(userCreateRequestDto.getPassword()), imageUrl);
@@ -75,12 +79,25 @@ public class UserService {
 
 
     @Transactional
-    public void uploadProfileImage(Long userId, MultipartFile file) {
-        User user = userRepository.findById(userId)
+    public void updateProfileImage(String loginId, MultipartFile file) {
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
         String imageUrl = storageService.upload(file);
         user.updateProfileImageUrl(imageUrl);
+        userRepository.save(user); // 변경 감지를 통해 저장
+    }
+
+    @Transactional
+    public void deleteProfileImage(String loginId) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        String currentProfileImageUrl = user.getProfileImageUrl();
+
+        if(!currentProfileImageUrl.equals(defaultProfileImageUrl)){
+            storageService.deleteImageFromS3(user.getProfileImageUrl());
+        }
+        user.updateProfileImageUrl(defaultProfileImageUrl);
         userRepository.save(user); // 변경 감지를 통해 저장
     }
 
@@ -142,6 +159,7 @@ public class UserService {
                 .category(top3Categories)
                 .mbti(mbtiInfo)
                 .nicknames(userNicknameValues)
+                .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
 

@@ -26,7 +26,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto> signUp(
             @Valid @RequestPart("user") UserCreateRequestDto userCreateRequestDto,
             @RequestPart(name = "profileImage", required = false) MultipartFile profileImage
-            ){
+    ){
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(userCreateRequestDto, profileImage));
     }
 
@@ -34,6 +34,24 @@ public class UserController {
     public ResponseEntity<String> isDuplicatedSignUpId(@RequestParam String loginId){
         if(userService.checkSignUpIdDuplicate(loginId)) return ResponseEntity.ok("can't use");
         return ResponseEntity.ok("can use");
+    }
+
+    @PutMapping(value = "/profileImage/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> updateProfileImage(
+            @RequestParam(name = "profileImage", required = false) MultipartFile profileImage
+    ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loginId = authentication.getName();
+        userService.updateProfileImage(loginId, profileImage);
+        return ResponseEntity.ok("profile image updated");
+    }
+
+    @PutMapping(value = "/profileImage/delete")
+    public ResponseEntity<String> deleteProfileImage(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loginId = authentication.getName();
+        userService.deleteProfileImage(loginId);
+        return ResponseEntity.ok("profile image updated");
     }
 
     @PostMapping("/login")
