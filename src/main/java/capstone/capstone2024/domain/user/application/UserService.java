@@ -4,6 +4,7 @@ import capstone.capstone2024.domain.app.application.AppService;
 import capstone.capstone2024.domain.app.dto.response.AppsResponseDto;
 import capstone.capstone2024.domain.chat.application.ChatService;
 import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
+import capstone.capstone2024.domain.storage.application.StorageService;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.nickname.domain.Nickname;
 import capstone.capstone2024.domain.user.domain.UserRepository;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,7 @@ public class UserService {
     private final AppService appService;
     private final YoutubeService youtubeService;
     private final ChatService chatService;
+    private final StorageService storageService;
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
@@ -46,13 +49,21 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto signUp(UserCreateRequestDto userCreateRequestDto) {
+    public UserResponseDto signUp(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImage) {
         //아이디 중복 체크
         if(userRepository.existsByLoginId(userCreateRequestDto.getLoginId())){
             throw new BadRequestException(ROW_ALREADY_EXIST, "이미 존재하는 아이디입니다. 중복을 확인해주세요.");
         }
 
-        User user = userCreateRequestDto.toEntity(encoder.encode(userCreateRequestDto.getPassword()));
+        String imageUrl = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            System.out.println("이미지를 받았어요");
+            imageUrl = storageService.upload(profileImage);
+        } else{
+            System.out.println("이미지가 안와요 ㅠㅠ");
+        }
+
+        User user = userCreateRequestDto.toEntity(encoder.encode(userCreateRequestDto.getPassword()), imageUrl);
         userRepository.save(user);
 
         return UserResponseDto.builder()
@@ -60,6 +71,17 @@ public class UserService {
                 .name(user.getName())
                 .birthday(user.getBirthday())
                 .build();
+    }
+
+
+    @Transactional
+    public void uploadProfileImage(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
+        String imageUrl = storageService.upload(file);
+        user.updateProfileImageUrl(imageUrl);
+        userRepository.save(user); // 변경 감지를 통해 저장
     }
 
 
