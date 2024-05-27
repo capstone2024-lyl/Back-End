@@ -27,6 +27,9 @@ public class UserCreateRequestDto {
     private LocalDate birthday;
 
 
+    private MultipartFile profileImage;
+
+
     public User toEntity(String encodedPassword, String imageUrl) {
         return User.builder()
                 .loginId(this.loginId)

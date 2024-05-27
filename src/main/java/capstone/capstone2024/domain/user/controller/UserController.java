@@ -24,10 +24,9 @@ public class UserController {
 
     @PostMapping(value = "/sign-up", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponseDto> signUp(
-            @Valid @RequestPart("user") UserCreateRequestDto userCreateRequestDto,
-            @RequestPart(name = "profileImage", required = false) MultipartFile profileImage
+            @Valid @ModelAttribute UserCreateRequestDto userCreateRequestDto
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(userCreateRequestDto, profileImage));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(userCreateRequestDto));
     }
 
     @GetMapping("/sign-up/is-duplicated")

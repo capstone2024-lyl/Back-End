@@ -52,19 +52,19 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto signUp(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImage) {
+    public UserResponseDto signUp(UserCreateRequestDto userCreateRequestDto) {
         //아이디 중복 체크
         if(userRepository.existsByLoginId(userCreateRequestDto.getLoginId())){
             throw new BadRequestException(ROW_ALREADY_EXIST, "이미 존재하는 아이디입니다. 중복을 확인해주세요.");
         }
 
-        String imageUrl = null;
+        String imageUrl = defaultProfileImageUrl;
+        MultipartFile profileImage = userCreateRequestDto.getProfileImage();
         if (profileImage != null && !profileImage.isEmpty()) {
             System.out.println("이미지를 받았어요");
             imageUrl = storageService.upload(profileImage);
         } else{
             System.out.println("이미지가 안와요 ㅠㅠ");
-            imageUrl = defaultProfileImageUrl;
         }
 
         User user = userCreateRequestDto.toEntity(encoder.encode(userCreateRequestDto.getPassword()), imageUrl);
