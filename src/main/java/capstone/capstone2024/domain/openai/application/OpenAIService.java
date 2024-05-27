@@ -31,7 +31,7 @@ public class OpenAIService {
 
         OpenAIRequestDto request = OpenAIRequestDto.builder()
                 .model("gpt-4o")
-                .messages(List.of(Map.of("role", "user", "content", "please translate given text file korean to english with sns . the results we're looking forward to is '아 진짜 개웃기네 ㅋㅋㅋ' translated to 'oh it's so funny lmao': " + text)))
+                .messages(List.of(Map.of("role", "user", "content", "please translate given text file(wrote in sns) korean to english without enter('\n). ex) the results we're looking forward to is '아 진짜 개웃기네 ㅋㅋㅋ' translated to 'oh it's so funny lmao': \n" + text)))
                 .build();
 
         OpenAIResponseDto response = client.post()
