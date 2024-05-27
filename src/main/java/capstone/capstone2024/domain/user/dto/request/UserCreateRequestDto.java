@@ -4,6 +4,7 @@ import capstone.capstone2024.domain.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import capstone.capstone2024.domain.user.domain.UserRole;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -25,13 +26,15 @@ public class UserCreateRequestDto {
 
     private LocalDate birthday;
 
-    public User toEntity(String encodedPassword) {
+
+    public User toEntity(String encodedPassword, String imageUrl) {
         return User.builder()
                 .loginId(this.loginId)
                 .password(encodedPassword)
                 .name(this.name)
                 .role(UserRole.USER)
                 .birthday(this.birthday)
+                .profileImageUrl(imageUrl)
                 .build();
     }
 }

@@ -46,5 +46,11 @@ public class User extends BaseEntity {
     @Column(name = "role")
     private UserRole role;
 
+    @Column(name = "profileImageUrl", length = 500, nullable = true)
+    private String profileImageUrl;
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 
 }
