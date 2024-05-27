@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/nickname")
 public class NicknameController {
     private final NicknameService nicknameService;
-    @PostMapping("/nickname")
+    @PostMapping("")
     public ResponseEntity<UserNicknameResponseDto> addNickname(@RequestParam Nickname nickname) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loginId = authentication.getName();

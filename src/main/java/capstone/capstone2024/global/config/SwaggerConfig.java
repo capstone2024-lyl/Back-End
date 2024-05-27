@@ -5,9 +5,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.security.OAuthFlows;
-import io.swagger.v3.oas.models.security.OAuthFlow;
-import io.swagger.v3.oas.models.security.Scopes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -29,20 +26,6 @@ public class SwaggerConfig {
 
         SecurityRequirement bearerAuthRequirement = new SecurityRequirement().addList("bearerAuth");
 
-//        SecurityScheme oauth2Scheme = new SecurityScheme()
-//                .type(SecurityScheme.Type.OAUTH2)
-//                .flows(new OAuthFlows()
-//                        .authorizationCode(new OAuthFlow()
-//                                .authorizationUrl("https://accounts.google.com/o/oauth2/auth")
-//                                .tokenUrl("https://oauth2.googleapis.com/token")
-//                                .scopes(new Scopes()
-//                                        .addString("profile", "Access your profile")
-//                                        .addString("email", "Access your email")
-//                                        .addString("https://www.googleapis.com/auth/youtube.readonly", "Access your YouTube subscriptions")
-//                                )))
-//                .name("X-Google-Token");
-
-//        SecurityRequirement oauth2Requirement = new SecurityRequirement().addList("oauth2Scheme");
 
         SecurityScheme googleAuthScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.APIKEY)
