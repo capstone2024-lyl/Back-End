@@ -9,10 +9,12 @@ import capstone.capstone2024.domain.user.dto.response.UserResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,9 +22,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/sign-up")
-    public ResponseEntity<UserResponseDto> signUp(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(userCreateRequestDto));
+    @PostMapping(value = "/sign-up", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponseDto> signUp(
+            @Valid @RequestPart("user") UserCreateRequestDto userCreateRequestDto,
+            @RequestPart(name = "profileImage", required = false) MultipartFile profileImage
+            ){
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.signUp(userCreateRequestDto, profileImage));
     }
 
     @GetMapping("/sign-up/is-duplicated")
