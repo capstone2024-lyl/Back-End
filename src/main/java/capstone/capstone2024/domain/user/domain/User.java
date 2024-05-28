@@ -4,6 +4,7 @@ import capstone.capstone2024.domain.app.domain.App;
 import capstone.capstone2024.domain.base.BaseEntity;
 import capstone.capstone2024.domain.chat.domain.Chat;
 import capstone.capstone2024.domain.nickname.domain.Nickname;
+import capstone.capstone2024.domain.photo.domain.Photo;
 import capstone.capstone2024.domain.youtube.domain.YoutubeCategories;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,6 +33,9 @@ public class User extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     private Chat mbti;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    private Photo photo;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private List<App> appList;
