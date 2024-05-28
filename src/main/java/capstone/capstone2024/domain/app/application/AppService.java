@@ -128,26 +128,17 @@ public class AppService {
     }
 
     private Nickname assignNicknameByCategory(AppCategory category) {
-        switch (category) {
-            case CHAT:
-                return Nickname.HEAVY_TALKER;
-            case SNS:
-                return Nickname.SNS_ADDICT;
-            case GAME:
-                return Nickname.GAME_HOLIC;
-            case MUSIC:
-                return Nickname.MUSIC_LOVER;
-            case NEWS:
-                return Nickname.NEWS_HUNTER;
-            case VIDEO:
-                return Nickname.VIDEO_ADDICT;
-            case WEBTOON:
-                return Nickname.WEBTOON_ADDICT;
-            case E_BOOK:
-                return Nickname.STUDY_MASTER;
-            default:
-                return null;
-        }
+        return switch (category) {
+            case CHAT -> Nickname.HEAVY_TALKER;
+            case SNS -> Nickname.SNS_ADDICT;
+            case GAME -> Nickname.GAME_HOLIC;
+            case MUSIC -> Nickname.MUSIC_LOVER;
+            case NEWS -> Nickname.NEWS_HUNTER;
+            case VIDEO -> Nickname.VIDEO_ADDICT;
+            case WEBTOON -> Nickname.WEBTOON_ADDICT;
+            case E_BOOK -> Nickname.STUDY_MASTER;
+            default -> null;
+        };
     }
 
 

@@ -82,4 +82,18 @@ public class PhotoService {
                 .sortedCategories(sortedCategories)
                 .build();
     }
+
+
+    private Nickname assignNicknameByPhoto(PhotoCategory category){
+        return switch (category) {
+            case NATURE -> Nickname.NATURE_LOVER;
+            case PERSON -> Nickname.INSIDER;
+            case ANIMAL -> Nickname.ANIMAL_LOVER;
+            case VEHICLE -> Nickname.CAR_ENTHUSIAST;
+            case HOME_APPLIANCE -> Nickname.TECH_GEEK;
+            case FOOD -> Nickname.FOODIE;
+            case FURNITURE -> Nickname.FURNITURE_CONNOISSEUR;
+            case DAILY -> Nickname.DAILY_OBSERVER;
+        };
+    }
 }

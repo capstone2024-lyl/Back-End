@@ -155,31 +155,19 @@ public class YoutubeService {
                 .findFirst()
                 .orElse(YoutubeCategory.OTHERS);
 
-        switch (topCategory) {
-            case ENTERTAINMENT:
-                return Nickname.ENTERTAINMENT_PD;
-            case GAME:
-                return Nickname.GAME_HOLIC;
-            case SPORTS:
-                return Nickname.ATLETE_AT_HEART;
-            case MOVIE:
-                return Nickname.COUCH_DIRECTOR;
-            case EDUCATION:
-                return Nickname.KNOWLEDGE_SEEKER;
-            case SCIENCE:
-                return Nickname.SCIENCE_GEEK;
-            case TRAVEL:
-                return Nickname.TRAVELER;
-            case COMEDY:
-                return Nickname.COMEDY_LOVER;
-            case PET:
-                return Nickname.PET_LOVER;
-            case NEWS:
-                return Nickname.NEWS_JUNKIE;
-            default:
-                return null;
-        }
-
+        return switch (topCategory) {
+            case ENTERTAINMENT -> Nickname.ENTERTAINMENT_PD;
+            case GAME -> Nickname.GAME_HOLIC;
+            case SPORTS -> Nickname.ATLETE_AT_HEART;
+            case MOVIE -> Nickname.COUCH_DIRECTOR;
+            case EDUCATION -> Nickname.KNOWLEDGE_SEEKER;
+            case SCIENCE -> Nickname.SCIENCE_GEEK;
+            case TRAVEL -> Nickname.TRAVELER;
+            case COMEDY -> Nickname.COMEDY_LOVER;
+            case PET -> Nickname.PET_LOVER;
+            case NEWS -> Nickname.NEWS_JUNKIE;
+            default -> null;
+        };
 
     }
 
