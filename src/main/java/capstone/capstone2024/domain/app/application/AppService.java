@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,16 +116,7 @@ public class AppService {
             }
         }
 
-        //전체 사용시간으로 칭호 부여
-        int totalAverageUsage = 2310;
-        int totalMinimumUsage = 420;
-        if(totalUsageTime > totalAverageUsage) {
-            nicknameService.addNickname(user.getLoginId(), Nickname.ADDICT);
-        } else if (totalUsageTime > totalMinimumUsage) {
-            nicknameService.addNickname(user.getLoginId(), Nickname.HEALTY_USER);
-        } else{
-            nicknameService.addNickname(user.getLoginId(), Nickname.DOPAMINE_DETOXER);
-        }
+        assignNicknameByUsage(user, totalUsageTime);
     }
 
     private Nickname assignNicknameByCategory(AppCategory category) {
@@ -141,5 +133,18 @@ public class AppService {
         };
     }
 
+    private void assignNicknameByUsage(User user, int totalUsageTime) {
+        List<Nickname> possibleNicknames = Arrays.asList(Nickname.ADDICT, Nickname.HEALTY_USER, Nickname.DOPAMINE_DETOXER);
+        user.getNickname().removeIf(possibleNicknames::contains);
 
+        int totalAverageUsage = 2310;
+        int totalMinimumUsage = 420;
+        if (totalUsageTime > totalAverageUsage) {
+            nicknameService.addNickname(user.getLoginId(), Nickname.ADDICT);
+        } else if (totalUsageTime > totalMinimumUsage) {
+            nicknameService.addNickname(user.getLoginId(), Nickname.HEALTY_USER);
+        } else {
+            nicknameService.addNickname(user.getLoginId(), Nickname.DOPAMINE_DETOXER);
+        }
+    }
 }
