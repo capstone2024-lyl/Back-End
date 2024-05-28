@@ -118,12 +118,12 @@ public class ChatService {
 
     @Transactional
     public ChatPredictResponseDto predictMBTI(String translatedMessages) {
-        if (translatedMessages.isEmpty() || translatedMessages == null) {
+        if (translatedMessages.isEmpty()) {
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "No file uploaded");
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        File tempFile = null;
+        File tempFile;
         try {
             tempFile = File.createTempFile("filltered_chat", ".txt");
             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
@@ -147,9 +147,7 @@ public class ChatService {
                     flaskApiUrl, HttpMethod.POST, requestEntity, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
                 String jsonResponse = response.getBody();
-                ChatPredictResponseDto chatPredictResponseDto = objectMapper.readValue(jsonResponse, ChatPredictResponseDto.class);
-
-                chatPredictResponseDto = adjustValues(chatPredictResponseDto);
+                ChatPredictResponseDto chatPredictResponseDto = adjustValues(objectMapper.readValue(jsonResponse, ChatPredictResponseDto.class));
 
                 return chatPredictResponseDto;
 
@@ -203,14 +201,14 @@ public class ChatService {
     }
 
     private MBTI giveMBTI(ChatPredictResponseDto responseDto) {
-        StringBuilder mbtiBuilder = new StringBuilder();
+        String mbti = "";
 
-        mbtiBuilder.append(responseDto.getEnergy() < 50 ? "I" : "E");
-        mbtiBuilder.append(responseDto.getRecognition() < 50 ? "N" : "S");
-        mbtiBuilder.append(responseDto.getDecision() < 50 ? "F" : "T");
-        mbtiBuilder.append(responseDto.getLifeStyle() < 50 ? "P" : "J");
+        mbti += (responseDto.getEnergy() < 50 ? "I" : "E");
+        mbti += (responseDto.getRecognition() < 50 ? "N" : "S");
+        mbti += (responseDto.getDecision() < 50 ? "F" : "T");
+        mbti += (responseDto.getLifeStyle() < 50 ? "P" : "J");
 
-        return MBTI.valueOf(mbtiBuilder.toString());
+        return MBTI.valueOf(mbti);
     }
 
 
@@ -267,15 +265,11 @@ public class ChatService {
             //1. 사용자 이름의 대화 필터링
             String combinedMessages = String.join("\n", userMessages);
 
-            //2. openai api로 번역
-            String translatedMessages = openAIService.translateText(combinedMessages);
-
-            return translatedMessages;
+            //2. openai api로 번역 후 반환
+            return openAIService.translateText(combinedMessages);
 
         } catch (IOException e) {
             throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to process file");
         }
     }
-
-
 }
