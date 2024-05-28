@@ -53,16 +53,27 @@ public class ChatService {
 
         int chatCount = 0;
 
+        List<String> userMessages = new ArrayList<>();
+        List<String> translatedMessagesList = new ArrayList<>();
+
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            List<String> userMessages = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 // 이름을 찾고 그 다음에 나오는 ':'를 기준으로 대화 내용 추출
                 if (line.contains(user.getName() + " : ")) {
-                    String message = line.split(user.getName() + " : ")[1].trim();
-                    userMessages.add(message);
-                    chatCount++;
+                    String[] parts = line.split(user.getName() + " : ");
+                    if (parts.length > 1) {
+                        String message = parts[1].trim();
+                        userMessages.add(message);
+                        chatCount++;
+                        if (chatCount % 3000 == 0) {
+                            String combinedMessages = String.join("\n", userMessages);
+                            String translatedMessages = openAIService.translateText(combinedMessages);
+                            translatedMessagesList.add(translatedMessages);
+                            userMessages.clear(); // 번역된 메시지 리스트 초기화
+                        }
+                    }
                 }
             }
             reader.close();
@@ -71,14 +82,19 @@ public class ChatService {
                 throw new BadRequestException(ErrorCode.INVALID_FILE_UPLOADED, "유효한 대화 내용이 아니거나 유효한 사용자 명이 아닙니다.");
             }
 
-            //1. 사용자 이름의 대화 필터링
-            String combinedMessages = String.join("\n", userMessages);
+            // 남은 메시지 번역(위의 3000번의 배수로 검사 진행 후)
+            if (!userMessages.isEmpty()) {
+                String combinedMessages = String.join("\n", userMessages);
+                String translatedMessages = openAIService.translateText(combinedMessages);
+                translatedMessagesList.add(translatedMessages);
+            }
 
-            //2. openai api로 번역
-            String translatedMessages = openAIService.translateText(combinedMessages);
+            // 모든 번역된 메시지를 하나의 문자열로 결합
+            String allTranslatedMessages = String.join("\n", translatedMessagesList);
 
-            //3. 모델을 사용해 mbti 예측 및 저장
-            ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(translatedMessages), chatCount, user);
+
+            // 모델을 사용해 mbti 예측 및 저장
+            ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(allTranslatedMessages), chatCount, user);
             MBTI mbti = giveMBTI(responseDto);
 
 
@@ -95,7 +111,6 @@ public class ChatService {
                         .mbti(mbti)
                         .isChecked(true)
                         .chatCount(responseDto.getChatCount())
-//                        .description(analyzedMessages)
                         .user(user)
                         .build();
                 chatRepository.save(chat); // chat 엔티티 저장
@@ -243,13 +258,19 @@ public class ChatService {
             List<String> userMessages = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length > 2 && parts[1].replaceAll("\"", "").equals(user.getName())) {
-                    userMessages.add(parts[2].replaceAll("\"", "").trim());
+                // 이름을 찾고 그 다음에 나오는 ':'를 기준으로 대화 내용 추출
+                if (line.contains(user.getName() + " : ")) {
+                    String message = line.split(user.getName() + " : ")[1].trim();
+                    userMessages.add(message);
                     chatCount++;
                 }
             }
             reader.close();
+
+            if(chatCount == 0){
+                throw new BadRequestException(ErrorCode.INVALID_FILE_UPLOADED, "유효한 대화 내용이 아니거나 유효한 사용자 명이 아닙니다.");
+            }
+
             //1. 사용자 이름의 대화 필터링
             String combinedMessages = String.join("\n", userMessages);
 
@@ -257,41 +278,6 @@ public class ChatService {
             String translatedMessages = openAIService.translateText(combinedMessages);
 
             return translatedMessages;
-
-        } catch (IOException e) {
-            throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to process file");
-        }
-    }
-
-    //분석 테스트
-    @Transactional
-    public String analyzeChat(MultipartFile file, String loginId, String mbti) {
-        if (file.isEmpty()) {
-            throw new BadRequestException(ErrorCode.NO_FILE_UPLOADED, "NO file uploaded");
-        }
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
-
-
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            List<String> userMessages = new ArrayList<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length > 2 && parts[1].replaceAll("\"", "").equals(user.getName())) {
-                    userMessages.add(parts[2].replaceAll("\"", "").trim());
-                }
-            }
-            reader.close();
-
-            //1. 사용자 이름의 대화 필터링
-            String combinedMessages = String.join("\n", userMessages);
-
-            //2. openai api로 번역
-            String analyzedMessages = openAIService.analyzeMBTI(combinedMessages, mbti);
-
-            return analyzedMessages;
 
         } catch (IOException e) {
             throw new InternalServerException(ErrorCode.INTERNAL_SERVER, "Failed to process file");
