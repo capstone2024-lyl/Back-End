@@ -164,6 +164,18 @@ public class YoutubeService {
                 return Nickname.ATLETE_AT_HEART;
             case MOVIE:
                 return Nickname.COUCH_DIRECTOR;
+            case EDUCATION:
+                return Nickname.KNOWLEDGE_SEEKER;
+            case SCIENCE:
+                return Nickname.SCIENCE_GEEK;
+            case TRAVEL:
+                return Nickname.TRAVELER;
+            case COMEDY:
+                return Nickname.COMEDY_LOVER;
+            case PET:
+                return Nickname.PET_LOVER;
+            case NEWS:
+                return Nickname.NEWS_JUNKIE;
             default:
                 return null;
         }

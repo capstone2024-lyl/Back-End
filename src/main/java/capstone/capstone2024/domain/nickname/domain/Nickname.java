@@ -14,6 +14,12 @@ public enum Nickname {
     GAME_HOLIC("게임홀릭"),
     ATLETE_AT_HEART("마음만은 운동선수"),
     COUCH_DIRECTOR("방구석 영화 감독"),
+    KNOWLEDGE_SEEKER("지식 탐구자"),
+    SCIENCE_GEEK("과학 덕후"),
+    TRAVELER("마음만은 여행중"),
+    COMEDY_LOVER("코미디가 좋아"),
+    PET_LOVER("애완동물 애호가"),
+    NEWS_JUNKIE("시사 박사"),
 
     //photo
     NATURE_LOVER("자연인"),

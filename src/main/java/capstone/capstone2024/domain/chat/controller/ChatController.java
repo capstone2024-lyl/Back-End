@@ -40,18 +40,6 @@ public class ChatController {
         return ResponseEntity.ok(translatedMessages);
     }
 
-    @PostMapping(value = "/analyze", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponseTemplate<String> fileUploadAndAnalyze(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("mbti") String mbti
-    ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String loginId = authentication.getName();
-        String translatedMessages = chatService.analyzeChat(file, loginId, mbti);
-        return ApiResponseTemplate.ok(translatedMessages);
-    }
-
-
 
     @GetMapping("/findMBTI")
     public ResponseEntity<ChatResponseDto> findMBTI(){
