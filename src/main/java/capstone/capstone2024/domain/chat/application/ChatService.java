@@ -54,7 +54,6 @@ public class ChatService {
         int chatCount = 0;
 
         List<String> userMessages = new ArrayList<>();
-        List<String> translatedMessagesList = new ArrayList<>();
 
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
@@ -67,12 +66,6 @@ public class ChatService {
                         String message = parts[1].trim();
                         userMessages.add(message);
                         chatCount++;
-                        if (chatCount % 3000 == 0) {
-                            String combinedMessages = String.join("\n", userMessages);
-                            String translatedMessages = openAIService.translateText(combinedMessages);
-                            translatedMessagesList.add(translatedMessages);
-                            userMessages.clear(); // 번역된 메시지 리스트 초기화
-                        }
                     }
                 }
             }
@@ -82,37 +75,37 @@ public class ChatService {
                 throw new BadRequestException(ErrorCode.INVALID_FILE_UPLOADED, "유효한 대화 내용이 아니거나 유효한 사용자 명이 아닙니다.");
             }
 
-            // 남은 메시지 번역(위의 3000번의 배수로 검사 진행 후)
-            if (!userMessages.isEmpty()) {
-                String combinedMessages = String.join("\n", userMessages);
-                String translatedMessages = openAIService.translateText(combinedMessages);
-                translatedMessagesList.add(translatedMessages);
-            }
+            int startIdx = Math.max(chatCount - 2000, 0); //음수면 startIdx가 0
+            List<String> recentMessages = userMessages.subList(startIdx, chatCount);
+            chatCount -= startIdx; // 채팅 카운트 업데이트
 
-            // 모든 번역된 메시지를 하나의 문자열로 결합
-            String allTranslatedMessages = String.join("\n", translatedMessagesList);
 
+            // 추출된 메시지를 번역
+            String combinedMessages = String.join("\n", recentMessages);
+            String translatedMessages = openAIService.translateText(combinedMessages);
 
             // 모델을 사용해 mbti 예측 및 저장
-            ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(allTranslatedMessages), chatCount, user);
+            ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(translatedMessages), chatCount, user);
             MBTI mbti = giveMBTI(responseDto);
 
 
 
-            if(user.getMbti() != null){
-                System.out.println("유저의 채팅정보가 존재합니다");
-                user.getMbti().update(responseDto.getEnergy(), responseDto.getRecognition(), responseDto.getDecision(), responseDto.getLifeStyle(), mbti, true, responseDto.getChatCount());
+            Chat chat = chatRepository.findByUserId(user.getId())
+                    .orElseGet(() -> Chat.builder()
+                            .energy(responseDto.getEnergy())
+                            .recognition(responseDto.getRecognition())
+                            .decision(responseDto.getDecision())
+                            .lifeStyle(responseDto.getLifeStyle())
+                            .mbti(mbti)
+                            .isChecked(true)
+                            .chatCount(responseDto.getChatCount())
+                            .user(user)
+                            .build());
+
+
+            if(chat != null){
+                chat.update(responseDto.getEnergy(), responseDto.getRecognition(), responseDto.getDecision(), responseDto.getLifeStyle(), mbti, true, responseDto.getChatCount());
             } else {
-                Chat chat = Chat.builder()
-                        .energy(responseDto.getEnergy())
-                        .recognition(responseDto.getRecognition())
-                        .decision(responseDto.getDecision())
-                        .lifeStyle(responseDto.getLifeStyle())
-                        .mbti(mbti)
-                        .isChecked(true)
-                        .chatCount(responseDto.getChatCount())
-                        .user(user)
-                        .build();
                 chatRepository.save(chat); // chat 엔티티 저장
             }
 
