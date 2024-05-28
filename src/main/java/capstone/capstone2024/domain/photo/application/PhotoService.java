@@ -1,6 +1,9 @@
 package capstone.capstone2024.domain.photo.application;
 
+import capstone.capstone2024.domain.nickname.application.NicknameService;
+import capstone.capstone2024.domain.nickname.domain.Nickname;
 import capstone.capstone2024.domain.photo.domain.Photo;
+import capstone.capstone2024.domain.photo.domain.PhotoCategory;
 import capstone.capstone2024.domain.photo.domain.PhotoRepository;
 import capstone.capstone2024.domain.photo.dto.request.PhotoCreateRequestDto;
 import capstone.capstone2024.domain.photo.dto.response.PhotoResponseDto;
@@ -24,6 +27,7 @@ public class PhotoService {
 
     private final PhotoRepository photoRepository;
     private final UserRepository userRepository;
+    private final NicknameService nicknameService;
 
     @Transactional
     public void saveResult(PhotoCreateRequestDto photoCreateRequestDto, String loginId) {
@@ -60,26 +64,29 @@ public class PhotoService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "사용자의 사진 분석 결과가 존재하지 않습니다."));
 
 
-        Map<String, Integer> resultMap = new HashMap<>();
-        resultMap.put("nature", photo.getNature());
-        resultMap.put("person", photo.getPerson());
-        resultMap.put("animal", photo.getAnimal());
-        resultMap.put("vehicle", photo.getVehicle());
-        resultMap.put("homeAppliance", photo.getHomeAppliance());
-        resultMap.put("food", photo.getFood());
-        resultMap.put("furniture", photo.getFurniture());
-        resultMap.put("daily", photo.getDaily());
+        Map<PhotoCategory, Integer> resultMap = new EnumMap<>(PhotoCategory.class);
+        resultMap.put(PhotoCategory.NATURE, photo.getNature());
+        resultMap.put(PhotoCategory.PERSON, photo.getPerson());
+        resultMap.put(PhotoCategory.ANIMAL, photo.getAnimal());
+        resultMap.put(PhotoCategory.VEHICLE, photo.getVehicle());
+        resultMap.put(PhotoCategory.HOME_APPLIANCE, photo.getHomeAppliance());
+        resultMap.put(PhotoCategory.FOOD, photo.getFood());
+        resultMap.put(PhotoCategory.FURNITURE, photo.getFurniture());
+        resultMap.put(PhotoCategory.DAILY, photo.getDaily());
 
-        // 내림차순으로 정렬하여 카테고리 이름만 추출
-        List<String> sortedCategories = resultMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+        // 내림차순으로 정렬
+        List<PhotoCategory> sortedCategories = resultMap.entrySet().stream()
+                .sorted(Map.Entry.<PhotoCategory, Integer>comparingByValue().reversed())
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
 
+        Nickname nickname = assignNicknameByPhoto(sortedCategories.get(0));
+        nicknameService.addNickname(user.getLoginId(), nickname);
 
         return PhotoResponseDto.builder()
-                .sortedCategories(sortedCategories)
+                .sortedCategories(sortedCategories.stream()
+                        .map(PhotoCategory::getValue)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
