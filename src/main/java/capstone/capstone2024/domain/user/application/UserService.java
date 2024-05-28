@@ -41,7 +41,9 @@ public class UserService {
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
-    private Long expiredMs = 1000 * 60 * 60L;
+
+    @Value("${spring.jwt.expired-time}")
+    private Long expiredMs;
 
     @Value("${cloud.default.profile.image.url}")
     private String defaultProfileImageUrl;
