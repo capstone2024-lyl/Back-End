@@ -91,22 +91,24 @@ public class ChatService {
 
 
             Chat chat = chatRepository.findByUserId(user.getId())
-                    .orElseGet(() -> Chat.builder()
-                            .energy(responseDto.getEnergy())
-                            .recognition(responseDto.getRecognition())
-                            .decision(responseDto.getDecision())
-                            .lifeStyle(responseDto.getLifeStyle())
-                            .mbti(mbti)
-                            .isChecked(true)
-                            .chatCount(responseDto.getChatCount())
-                            .user(user)
-                            .build());
+                    .orElse(null);
 
-
-            if(chat != null){
+            if (chat != null) {
+                // 기존 Chat 객체가 있는 경우 업데이트
                 chat.update(responseDto.getEnergy(), responseDto.getRecognition(), responseDto.getDecision(), responseDto.getLifeStyle(), mbti, true, responseDto.getChatCount());
             } else {
-                chatRepository.save(chat); // chat 엔티티 저장
+                // 새로운 Chat 객체를 생성하고 저장
+                chat = Chat.builder()
+                        .energy(responseDto.getEnergy())
+                        .recognition(responseDto.getRecognition())
+                        .decision(responseDto.getDecision())
+                        .lifeStyle(responseDto.getLifeStyle())
+                        .mbti(mbti)
+                        .isChecked(true)
+                        .chatCount(responseDto.getChatCount())
+                        .user(user)
+                        .build();
+                chatRepository.save(chat);
             }
 
             return responseDto;
