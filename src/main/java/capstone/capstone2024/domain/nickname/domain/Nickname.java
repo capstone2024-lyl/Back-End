@@ -24,7 +24,12 @@ public enum Nickname {
     //photo
     NATURE_LOVER("자연인"),
     ANIMAL_LOVER("동물애호가"),
-    NARCISSIST("사람이 좋아요"),
+    INSIDER("인싸"),
+    CAR_ENTHUSIAST("자동차 애호가"),
+    TECH_GEEK("가전제품 전문가"),
+    FOODIE("미식가"),
+    FURNITURE_CONNOISSEUR("가구 애호가"),
+    DAILY_OBSERVER("일상 사진가"),
 
     //app usage
     SNS_ADDICT("SNS 중독"),
