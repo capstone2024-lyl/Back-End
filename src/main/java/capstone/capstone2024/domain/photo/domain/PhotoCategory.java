@@ -4,7 +4,7 @@ public enum PhotoCategory {
     NATURE("자연"),
     PERSON("인물"),
     ANIMAL("동물"),
-    VEHICLE("교통 수단"),
+    VEHICLE("교통수단"),
     HOME_APPLIANCE("가전제품"),
     FOOD("음식"),
     FURNITURE("가구"),
