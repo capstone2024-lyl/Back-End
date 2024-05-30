@@ -40,13 +40,13 @@ public class Photo extends BaseEntity {
 
     // 업데이트 메서드 추가
     public void update(PhotoCreateRequestDto dto) {
-        this.nature += dto.getNature();
-        this.person += dto.getPerson();
-        this.animal += dto.getAnimal();
-        this.vehicle += dto.getVehicle();
-        this.homeAppliance += dto.getHomeAppliance();
-        this.food += dto.getFood();
-        this.furniture += dto.getFurniture();
-        this.daily += dto.getDaily();
+        this.nature = dto.getNature();
+        this.person = dto.getPerson();
+        this.animal = dto.getAnimal();
+        this.vehicle = dto.getVehicle();
+        this.homeAppliance = dto.getHomeAppliance();
+        this.food = dto.getFood();
+        this.furniture = dto.getFurniture();
+        this.daily = dto.getDaily();
     }
 }
