@@ -5,7 +5,6 @@ import capstone.capstone2024.domain.chat.application.ChatService;
 
 import capstone.capstone2024.domain.chat.dto.response.ChatPredictResponseDto;
 import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
-import capstone.capstone2024.global.payload.ApiResponseTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
