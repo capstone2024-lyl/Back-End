@@ -34,7 +34,7 @@ public class PhotoService {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
-        Photo photo = user.getPhoto();
+        Photo photo = photoRepository.findByUserId(user.getId()).orElse(null);
 
         if (photo != null) {
             photo.update(photoCreateRequestDto);
@@ -61,34 +61,47 @@ public class PhotoService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
 
         Photo photo = photoRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "사용자의 사진 분석 결과가 존재하지 않습니다."));
+                .orElse(null);
 
 
-        Map<PhotoCategory, Integer> resultMap = new EnumMap<>(PhotoCategory.class);
-        resultMap.put(PhotoCategory.NATURE, photo.getNature());
-        resultMap.put(PhotoCategory.PERSON, photo.getPerson());
-        resultMap.put(PhotoCategory.ANIMAL, photo.getAnimal());
-        resultMap.put(PhotoCategory.VEHICLE, photo.getVehicle());
-        resultMap.put(PhotoCategory.HOME_APPLIANCE, photo.getHomeAppliance());
-        resultMap.put(PhotoCategory.FOOD, photo.getFood());
-        resultMap.put(PhotoCategory.FURNITURE, photo.getFurniture());
-        resultMap.put(PhotoCategory.DAILY, photo.getDaily());
+        if(photo != null){
+            Map<PhotoCategory, Integer> resultMap = new EnumMap<>(PhotoCategory.class);
+            resultMap.put(PhotoCategory.NATURE, photo.getNature());
+            resultMap.put(PhotoCategory.PERSON, photo.getPerson());
+            resultMap.put(PhotoCategory.ANIMAL, photo.getAnimal());
+            resultMap.put(PhotoCategory.VEHICLE, photo.getVehicle());
+            resultMap.put(PhotoCategory.HOME_APPLIANCE, photo.getHomeAppliance());
+            resultMap.put(PhotoCategory.FOOD, photo.getFood());
+            resultMap.put(PhotoCategory.FURNITURE, photo.getFurniture());
+            resultMap.put(PhotoCategory.DAILY, photo.getDaily());
+            // 내림차순으로 정렬
+            List<Map.Entry<PhotoCategory, Integer>> sortedEntries = resultMap.entrySet().stream()
+                    .sorted(Map.Entry.<PhotoCategory, Integer>comparingByValue().reversed())
+                    .collect(Collectors.toList());
 
-        // 내림차순으로 정렬
-        List<PhotoCategory> sortedCategories = resultMap.entrySet().stream()
-                .sorted(Map.Entry.<PhotoCategory, Integer>comparingByValue().reversed())
-                .map(Map.Entry::getKey)
-                .toList();
+            List<String> sortedCategories = sortedEntries.stream()
+                    .map(entry -> entry.getKey().getValue())
+                    .collect(Collectors.toList());
 
-        Nickname nickname = assignNicknameByPhoto(sortedCategories.get(0));
-        nicknameService.addNickname(user.getLoginId(), nickname);
+            List<Integer> categoryCounts = sortedEntries.stream()
+                    .map(Map.Entry::getValue)
+                    .collect(Collectors.toList());
+
+            Nickname nickname = assignNicknameByPhoto(sortedEntries.get(0).getKey());
+            nicknameService.addNickname(user.getLoginId(), nickname);
+
+            return PhotoResponseDto.builder()
+                    .sortedCategories(sortedCategories)
+                    .categoryCounts(categoryCounts)
+                    .isChecked(true)
+                    .build();
+        }
 
         return PhotoResponseDto.builder()
-                .sortedCategories(sortedCategories.stream()
-                        .map(PhotoCategory::getValue)
-                        .collect(Collectors.toList()))
+                .isChecked(false)
                 .build();
     }
+
 
 
     private Nickname assignNicknameByPhoto(PhotoCategory category){

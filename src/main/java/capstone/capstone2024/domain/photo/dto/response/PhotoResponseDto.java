@@ -9,4 +9,6 @@ import java.util.List;
 @Builder
 public class PhotoResponseDto {
     private List<String> sortedCategories;
+    private List<Integer> categoryCounts;
+    private Boolean isChecked;
 }

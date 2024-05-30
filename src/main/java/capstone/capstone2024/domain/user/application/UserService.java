@@ -4,6 +4,8 @@ import capstone.capstone2024.domain.app.application.AppService;
 import capstone.capstone2024.domain.app.dto.response.AppsResponseDto;
 import capstone.capstone2024.domain.chat.application.ChatService;
 import capstone.capstone2024.domain.chat.dto.response.ChatResponseDto;
+import capstone.capstone2024.domain.photo.application.PhotoService;
+import capstone.capstone2024.domain.photo.dto.response.PhotoResponseDto;
 import capstone.capstone2024.domain.storage.application.StorageService;
 import capstone.capstone2024.domain.user.domain.User;
 import capstone.capstone2024.domain.nickname.domain.Nickname;
@@ -38,6 +40,7 @@ public class UserService {
     private final YoutubeService youtubeService;
     private final ChatService chatService;
     private final StorageService storageService;
+    private final PhotoService photoService;
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
@@ -149,6 +152,7 @@ public class UserService {
         AppsResponseDto appsResponseDto = appService.findTop10App(loginId);
         YoutubeTop3CategoriesResponseDto top3Categories = youtubeService.findTop3Categories(loginId);
         ChatResponseDto mbtiInfo = chatService.findMBTI(loginId);
+        PhotoResponseDto photoResponseDto = photoService.getResult(loginId);
 
         List<String> userNicknameValues = user.getNickname().stream()
                 .map(Nickname::getDescription)
@@ -161,6 +165,7 @@ public class UserService {
                 .category(top3Categories)
                 .mbti(mbtiInfo)
                 .nicknames(userNicknameValues)
+                .photoResult(photoResponseDto)
                 .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
