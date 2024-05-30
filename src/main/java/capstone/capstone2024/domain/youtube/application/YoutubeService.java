@@ -24,7 +24,6 @@ import java.security.GeneralSecurityException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static capstone.capstone2024.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
@@ -158,6 +157,7 @@ public class YoutubeService {
         return switch (topCategory) {
             case ENTERTAINMENT -> Nickname.ENTERTAINMENT_PD;
             case GAME -> Nickname.GAME_HOLIC;
+            case IT -> Nickname.TECH_MASTER;
             case SPORTS -> Nickname.ATLETE_AT_HEART;
             case MOVIE -> Nickname.COUCH_DIRECTOR;
             case EDUCATION -> Nickname.KNOWLEDGE_SEEKER;

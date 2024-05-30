@@ -20,6 +20,7 @@ public enum Nickname {
     COMEDY_LOVER("코미디가 좋아"),
     PET_LOVER("애완동물 애호가"),
     NEWS_JUNKIE("시사 박사"),
+    TECH_MASTER("아이티 전문가"),
 
     //photo
     NATURE_LOVER("자연인"),
