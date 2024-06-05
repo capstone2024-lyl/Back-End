@@ -23,6 +23,7 @@ public class OpenAIService {
 
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
+    @Transactional
     public String translateText(String text) {
         WebClient client = WebClient.builder()
                 .baseUrl(OPENAI_URL)
@@ -89,19 +90,6 @@ public class OpenAIService {
 
 
         return response.getChoices().get(0).getMessage().get("content").trim();
-
-//        List<OpenAIYoutubeResponseDto.Choice.Message.Content> contents = response.getChoices().stream()
-//                .map(OpenAIYoutubeResponseDto.Choice::getMessage)
-//                .map(OpenAIYoutubeResponseDto.Choice.Message::getContent)
-//                .collect(Collectors.toList());
-
-//        return contents.stream()
-//                .map(content -> YoutubeSubscribeResponseDto.builder()
-//                        .title(content.getTitle())
-//                        .category(content.getCategory())
-//                        .build())
-//                .collect(Collectors.toList());
-
     }
 
 
