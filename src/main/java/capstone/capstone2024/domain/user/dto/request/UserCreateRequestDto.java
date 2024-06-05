@@ -4,6 +4,7 @@ import capstone.capstone2024.domain.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
+import capstone.capstone2024.domain.user.domain.UserRole;
 
 import java.time.LocalDate;
 
@@ -35,6 +36,7 @@ public class UserCreateRequestDto {
                 .password(encodedPassword)
                 .name(this.name)
                 .birthday(this.birthday)
+                .role(UserRole.USER)
                 .profileImageUrl(imageUrl)
                 .build();
     }

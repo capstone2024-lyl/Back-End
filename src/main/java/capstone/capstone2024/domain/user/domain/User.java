@@ -47,6 +47,9 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private List<Nickname> nickname;
 
+    @Column(name = "role")
+    private UserRole role;
+
     @Column(name = "profileImageUrl", length = 500, nullable = true)
     private String profileImageUrl;
 
