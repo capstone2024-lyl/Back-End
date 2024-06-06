@@ -75,7 +75,7 @@ public class ChatService {
                 throw new BadRequestException(ErrorCode.INVALID_FILE_UPLOADED, "유효한 대화 내용이 아니거나 유효한 사용자 명이 아닙니다.");
             }
 
-            int startIdx = Math.max(chatCount - 2000, 0); //음수면 startIdx가 0
+            int startIdx = Math.max(chatCount - 500, 0); //음수면 startIdx가 0
             List<String> recentMessages = userMessages.subList(startIdx, chatCount);
             chatCount -= startIdx; // 채팅 카운트 업데이트
 
@@ -149,7 +149,7 @@ public class ChatService {
                     flaskApiUrl, HttpMethod.POST, requestEntity, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
                 String jsonResponse = response.getBody();
-                ChatPredictResponseDto chatPredictResponseDto = adjustValues(objectMapper.readValue(jsonResponse, ChatPredictResponseDto.class));
+                ChatPredictResponseDto chatPredictResponseDto = objectMapper.readValue(jsonResponse, ChatPredictResponseDto.class);
 
                 return chatPredictResponseDto;
 
