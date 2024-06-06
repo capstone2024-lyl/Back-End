@@ -85,7 +85,7 @@ public class ChatService {
             String translatedMessages = openAIService.translateText(combinedMessages);
 
             // 모델을 사용해 mbti 예측 및 저장
-            ChatPredictResponseDto responseDto = updateMBTI(predictMBTI(translatedMessages), chatCount, user);
+            ChatPredictResponseDto responseDto = adjustValues(updateMBTI(predictMBTI(translatedMessages), chatCount, user));
             MBTI mbti = giveMBTI(responseDto);
 
 
