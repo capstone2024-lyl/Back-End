@@ -35,7 +35,6 @@
 ![캡스톤 인프라](https://github.com/capstone2024-lyl/Back-End/assets/63050966/4037c4a2-5cad-4633-8d1e-79bab2554eea)
 
 
-## 참여인원
 
 ## 참여인원
 
